@@ -1,0 +1,688 @@
+[
+  {
+    "category": "Disease Management",
+    "tags": ["coconut", "disease", "root wilt", "kerala"],
+    "question": {
+      "en": "What are the symptoms of root wilt in coconut trees?",
+      "hi": "नारियल के पेड़ों में रूट विल्ट के लक्षण क्या हैं?",
+      "ml": "തെങ്ങിൽ റൂട്ട് വിൽറ്റിന്റെ ലക്ഷണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Coconut trees show yellowing leaves, reduced nut production, and progressive wilting. Affected palms should be removed to prevent spread.",
+      "hi": "नारियल के पेड़ों में पत्तियों का पीला पड़ना, नारियल की संख्या में कमी और धीरे-धीरे मुरझाना दिखाई देता है। रोग फैलने से रोकने के लिए प्रभावित पेड़ों को हटा दें।",
+      "ml": "ഇലകൾ മഞ്ഞനിറമാകുക, കായ ഉൽപ്പാദനം കുറയുക, മരങ്ങൾ ക്രമേണ വാടുക. രോഗം പടരാതിരിക്കാൻ ബാധിത മരങ്ങൾ നീക്കം ചെയ്യണം."
+    }
+  },
+  {
+    "category": "Disease Management",
+    "tags": ["paddy", "disease", "blast"],
+    "question": {
+      "en": "How to identify and manage blast disease in paddy?",
+      "hi": "धान में ब्लास्ट रोग की पहचान और प्रबंधन कैसे करें?",
+      "ml": "നെൽകൃഷിയിൽ ബ്ലസ്റ്റ് രോഗം എങ്ങനെ തിരിച്ചറിയാം, നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "Blast disease appears as spindle-shaped spots on leaves. Use resistant varieties and apply fungicides like Tricyclazole to manage it.",
+      "hi": "ब्लास्ट रोग पत्तियों पर धुरी के आकार के धब्बे के रूप में दिखाई देता है। इसे नियंत्रित करने के लिए प्रतिरोधी किस्में और ट्राइसाइक्लाजोल जैसे फफूंदनाशक का उपयोग करें।",
+      "ml": "ബ്ലസ്റ്റ് രോഗം ഇലകളിൽ കണ്ണിന്റെ ആകൃതിയിലുള്ള പാടുകളായി കാണപ്പെടുന്നു. രോഗപ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ ഉപയോഗിക്കുകയും ട്രൈസൈക്ലസോൾ പോലുള്ള കുമിൾനാശിനികൾ പ്രയോഗിക്കുകയും ചെയ്യുക."
+    }
+  },
+  {
+    "category": "Disease Management",
+    "tags": ["rubber", "disease", "powdery mildew", "kerala"],
+    "question": {
+      "en": "How to manage powdery mildew in rubber plantations?",
+      "hi": "रबर के बागानों में चूर्णी फफूंदी (पाउडरी मिल्ड्यू) का प्रबंधन कैसे करें?",
+      "ml": "റബ്ബർ തോട്ടങ്ങളിലെ ചൂർണ്ണപൂപ്പൽ (പൊടിപൂപ്പൽ) എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "Powdery mildew affects young leaves. Apply Sulphur dust or wettable Sulphur on young leaves as a preventive measure during the dry season.",
+      "hi": "चूर्णी फफूंदी युवा पत्तियों को प्रभावित करती है। शुष्क मौसम में रोकथाम के उपाय के रूप में युवा पत्तियों पर सल्फर धूल या घुलनशील सल्फर का उपयोग करें।",
+      "ml": "ചൂർണ്ണപൂപ്പൽ ഇളം ഇലകളെ ബാധിക്കുന്നു. വേനൽക്കാലത്ത് രോഗം വരാതിരിക്കാൻ ഇളം ഇലകളിൽ സൾഫർ പൊടിയോ നനഞ്ഞ സൾഫറോ ഉപയോഗിക്കുക."
+    }
+  },
+  {
+    "category": "Disease Management",
+    "tags": ["pepper", "disease", "quick wilt", "kerala"],
+    "question": {
+      "en": "What are the early signs of Quick Wilt in pepper vines?",
+      "hi": "काली मिर्च की बेलों में त्वरित मुरझान (क्विक विल्ट) के शुरुआती लक्षण क्या हैं?",
+      "ml": "കുരുമുളക് വള്ളികളിൽ ദ്രുതവാട്ടത്തിന്റെ ആദ്യ ലക്ഷണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Quick wilt causes sudden yellowing and wilting of leaves, followed by the death of the vine. It is common during monsoon. Ensure proper drainage and soil drenching with a fungicide.",
+      "hi": "त्वरित मुरझान (क्विक विल्ट) के कारण पत्तियों में अचानक पीलापन आता है और वे मुरझा जाती हैं, जिसके बाद बेल सूखकर मर जाती है। यह मॉनसून के दौरान आम है। उचित जल निकासी और फफूंदनाशक से मिट्टी को भिगोना सुनिश्चित करें।",
+      "ml": "ദ്രുതവാട്ടം ഇലകളിൽ പെട്ടെന്നുള്ള മഞ്ഞളിപ്പിനും വാട്ടത്തിനും കാരണമാകുന്നു, അതിനുശേഷം വള്ളികൾ നശിച്ചുപോകുന്നു. ഇത് മഴക്കാലത്ത് സാധാരണമാണ്. ശരിയായ നീർവാർച്ചയും കുമിൾനാശിനി ഉപയോഗിച്ച് മണ്ണ് കുതിർക്കുന്നതും ഉറപ്പാക്കുക."
+    }
+  },
+  {
+    "category": "Pest Management",
+    "tags": ["mango", "pests", "fruit fly"],
+    "question": {
+      "en": "How to control fruit flies in mango cultivation?",
+      "hi": "आम की खेती में फल मक्खियों को कैसे नियंत्रित करें?",
+      "ml": "മാംഗോ കൃഷിയിൽ കായീച്ചകളെ എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "Use fruit fly traps with pheromones, apply neem-based pesticides, and destroy fallen fruits to control fruit flies.",
+      "hi": "फल मक्खियों को नियंत्रित करने के लिए फेरोमोन के साथ फल मक्खी जाल का उपयोग करें, नीम आधारित कीटनाशकों का प्रयोग करें, और गिरे हुए फलों को नष्ट कर दें।",
+      "ml": "കായീച്ചകളെ നിയന്ത്രിക്കാൻ ഫെറോമോൺ കെണികൾ ഉപയോഗിക്കുക, വേപ്പ് അധിഷ്ഠിത കീടനാശിനികൾ പ്രയോഗിക്കുക, വീണ പഴങ്ങൾ നശിപ്പിക്കുക."
+    }
+  },
+  {
+    "category": "Pest Management",
+    "tags": ["vegetables", "pests", "whitefly"],
+    "question": {
+      "en": "What is the best way to manage whiteflies in vegetable gardens?",
+      "hi": "सब्जी के बगीचों में सफेद मक्खियों को नियंत्रित करने का सबसे अच्छा तरीका क्या है?",
+      "ml": "പച്ചക്കറി തോട്ടങ്ങളിൽ വെള്ളീച്ചകളെ എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "Use yellow sticky traps to catch adult whiteflies. For severe infestations, apply insecticidal soap or neem oil.",
+      "hi": "वयस्क सफेद मक्खियों को पकड़ने के लिए पीले रंग के चिपचिपे जाल का उपयोग करें। गंभीर संक्रमण के लिए, कीटनाशक साबुन या नीम का तेल लगाएं।",
+      "ml": "മുതിർന്ന വെള്ളീച്ചകളെ പിടിക്കാൻ മഞ്ഞ ഒട്ടുന്ന കെണികൾ ഉപയോഗിക്കുക. കഠിനമായ ആക്രമണത്തിന്, കീടനാശിനി സോപ്പോ വേപ്പ് എണ്ണയോ ഉപയോഗിക്കുക."
+    }
+  },
+  {
+    "category": "Pest Management",
+    "tags": ["cardamom", "pests", "thrips"],
+    "question": {
+      "en": "What are the common pests of cardamom?",
+      "hi": "इलायची के सामान्य कीट कौन से हैं?",
+      "ml": "ഏലക്കയുടെ സാധാരണ കീടങ്ങൾ ഏതെല്ലാമാണ്?"
+    },
+    "answer": {
+      "en": "Common pests of cardamom are thrips and borers. They cause stunted growth and reduced yield. Use bio-pesticides for control.",
+      "hi": "इलायची के सामान्य कीट थ्रिप्स और छेदक हैं। वे विकास को रोकते हैं और पैदावार कम करते हैं। नियंत्रण के लिए जैव-कीटनाशकों का उपयोग करें।",
+      "ml": "ഏലക്കയുടെ സാധാരണ കീടങ്ങളാണ് ഇലപ്പേനും തണ്ടുതുരപ്പൻ പുഴുവും. അവ ചെടിയുടെ വളർച്ച മുരടിപ്പിക്കുകയും വിളവ് കുറയ്ക്കുകയും ചെയ്യും. ഇവയെ നിയന്ത്രിക്കാൻ ജൈവകീടനാശിനികൾ ഉപയോഗിക്കുക."
+    }
+  },
+  {
+    "category": "Fertilizer & Soil Health",
+    "tags": ["fertilizer", "coconut"],
+    "question": {
+      "en": "Which fertilizer is best for coconut trees?",
+      "hi": "नारियल के पेड़ों के लिए कौन सा उर्वरक सबसे अच्छा है?",
+      "ml": "തെങ്ങിന് ഏറ്റവും നല്ല വളം ഏതാണ്?"
+    },
+    "answer": {
+      "en": "A balanced fertilizer with NPK (Nitrogen, Phosphorus, Potassium) is recommended, along with organic manure and micronutrients like Boron and Magnesium.",
+      "hi": "एनपीके (नाइट्रोजन, फास्फोरस, पोटेशियम) के साथ एक संतुलित उर्वरक, साथ ही जैविक खाद और बोरॉन और मैग्नीशियम जैसे सूक्ष्म पोषक तत्वों की सलाह दी जाती है।",
+      "ml": "NPK (നൈട്രജൻ, ഫോസ്ഫറസ്, പൊട്ടാസ്യം) അടങ്ങിയ സന്തുലിതമായ വളം, ജൈവവളങ്ങളും ബോറോൺ, മഗ്നീഷ്യം തുടങ്ങിയ സൂക്ഷ്മ മൂലകങ്ങളും ശുപാർശ ചെയ്യുന്നു."
+    }
+  },
+  {
+    "category": "Fertilizer & Soil Health",
+    "tags": ["soil", "acidity", "management"],
+    "question": {
+      "en": "How to manage soil acidity?",
+      "hi": "मिट्टी की अम्लता को कैसे नियंत्रित करें?",
+      "ml": "മണ്ണിന്റെ അമ്ലത എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "Soil acidity can be managed by applying lime, dolomite, or wood ash. Conduct a soil test to determine the correct amount.",
+      "hi": "मिट्टी की अम्लता को चूना, डोलोमाइट या लकड़ी की राख डालकर नियंत्रित किया जा सकता है। सही मात्रा निर्धारित करने के लिए मिट्टी की जांच करवाएं।",
+      "ml": "മണ്ണിന്റെ അമ്ലത നിയന്ത്രിക്കാൻ കുമ്മായം, ഡോളോമൈറ്റ് അല്ലെങ്കിൽ മരച്ചാരം എന്നിവ ചേർക്കാം. ശരിയായ അളവ് നിർണ്ണയിക്കാൻ മണ്ണ് പരിശോധന നടത്തുക."
+    }
+  },
+  {
+    "category": "Fertilizer & Soil Health",
+    "tags": ["organic", "fertilizer", "compost"],
+    "question": {
+      "en": "What are the benefits of organic fertilizers?",
+      "hi": "जैविक उर्वरकों के क्या फायदे हैं?",
+      "ml": "ജൈവവളങ്ങളുടെ ഗുണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Organic fertilizers improve soil structure, increase water retention, and promote beneficial microorganisms, leading to healthier plants.",
+      "hi": "जैविक उर्वरक मिट्टी की संरचना में सुधार करते हैं, पानी बनाए रखने की क्षमता बढ़ाते हैं, और लाभकारी सूक्ष्मजीवों को बढ़ावा देते हैं, जिससे पौधे स्वस्थ रहते हैं।",
+      "ml": "ജൈവവളങ്ങൾ മണ്ണിന്റെ ഘടന മെച്ചപ്പെടുത്തുകയും ജലാംശം വർദ്ധിപ്പിക്കുകയും, ഗുണകരമായ സൂക്ഷ്മാണുക്കളെ വളർത്തുകയും അതുവഴി ആരോഗ്യമുള്ള ചെടികൾക്ക് വഴിയൊരുക്കുകയും ചെയ്യുന്നു."
+    }
+  },
+  {
+    "category": "Fertilizer & Soil Health",
+    "tags": ["soil", "health", "test"],
+    "question": {
+      "en": "How to test soil health at home?",
+      "hi": "घर पर मिट्टी के स्वास्थ्य का परीक्षण कैसे करें?",
+      "ml": "വീട്ടിൽ മണ്ണിന്റെ ആരോഗ്യം എങ്ങനെ പരിശോധിക്കാം?"
+    },
+    "answer": {
+      "en": "You can check soil pH and texture using simple kits. For detailed nutrient analysis, it is best to send a sample to a soil testing lab.",
+      "hi": "आप साधारण किट का उपयोग करके मिट्टी का पीएच और बनावट जांच सकते हैं। विस्तृत पोषक तत्व विश्लेषण के लिए, नमूना मिट्टी परीक्षण प्रयोगशाला में भेजना सबसे अच्छा है।",
+      "ml": "ലളിതമായ കിറ്റുകൾ ഉപയോഗിച്ച് മണ്ണിന്റെ pH, ഘടന എന്നിവ പരിശോധിക്കാം. വിശദമായ പോഷക വിശകലനത്തിന്, മണ്ണ് പരിശോധനാ ലാബിലേക്ക് ഒരു സാമ്പിൾ അയയ്ക്കുന്നതാണ് ഉചിതം."
+    }
+  },
+  {
+    "category": "Government Schemes",
+    "tags": ["pm kisan", "scheme", "subsidy", "loan"],
+    "question": {
+      "en": "What is the PM-KISAN scheme and its benefits?",
+      "hi": "पीएम-किसान योजना क्या है और इसके क्या लाभ हैं?",
+      "ml": "പ്രധാനമന്ത്രി കിസാൻ പദ്ധതിയും അതിന്റെ ഗുണങ്ങളും എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "The PM-KISAN scheme provides an income support of ₹6,000 per year in three equal installments to small and marginal farmer families.",
+      "hi": "पीएम-किसान योजना छोटे और सीमांत किसान परिवारों को तीन समान किस्तों में प्रति वर्ष ₹6,000 की आय सहायता प्रदान करती है।",
+      "ml": "പ്രധാനമന്ത്രി കിസാൻ പദ്ധതി ചെറിയ, നാമമാത്ര കർഷക കുടുംബങ്ങൾക്ക് പ്രതിവർഷം ₹6,000 വരുമാന പിന്തുണ മൂന്ന് തുല്യ ഗഡുക്കളായി നൽകുന്നു."
+    }
+  },
+  {
+    "category": "Government Schemes",
+    "tags": ["subsidy", "machinery", "loan"],
+    "question": {
+      "en": "How to apply for a subsidy on agricultural machinery?",
+      "hi": "कृषि मशीनरी पर सब्सिडी के लिए कैसे आवेदन करें?",
+      "ml": "കൃഷി യന്ത്രങ്ങൾക്കുള്ള സബ്സിഡിക്ക് എങ്ങനെ അപേക്ഷിക്കാം?"
+    },
+    "answer": {
+      "en": "You can apply through the official government portal for agricultural schemes or contact your local agriculture department for detailed information and application forms.",
+      "hi": "आप कृषि योजनाओं के लिए आधिकारिक सरकारी पोर्टल के माध्यम से आवेदन कर सकते हैं या विस्तृत जानकारी और आवेदन पत्र के लिए अपने स्थानीय कृषि विभाग से संपर्क कर सकते हैं।",
+      "ml": "കൃഷി പദ്ധതികൾക്കായുള്ള ഔദ്യോഗിക സർക്കാർ പോർട്ടൽ വഴി അപേക്ഷിക്കാം അല്ലെങ്കിൽ കൂടുതൽ വിവരങ്ങൾക്കും അപേക്ഷാ ഫോമിനും നിങ്ങളുടെ പ്രാദേശിക കൃഷി വകുപ്പുമായി ബന്ധപ്പെടുക."
+    }
+  },
+  {
+    "category": "Government Schemes",
+    "tags": ["kcc", "loan", "kisan credit card"],
+    "question": {
+      "en": "What are the eligibility criteria for a Kisan Credit Card (KCC) loan?",
+      "hi": "किसान क्रेडिट कार्ड (KCC) ऋण के लिए पात्रता मानदंड क्या हैं?",
+      "ml": "കിസാൻ ക്രെഡിറ്റ് കാർഡ് (KCC) വായ്പയ്ക്ക് യോഗ്യതാ മാനദണ്ഡങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "All farmers, including tenant farmers, sharecroppers, and self-help groups, are eligible for a KCC. They must be engaged in farming or allied activities.",
+      "hi": "किरायेदार किसानों, बटाईदारों और स्वयं सहायता समूहों सहित सभी किसान केसीसी के लिए पात्र हैं। उन्हें खेती या संबद्ध गतिविधियों में लगे रहना चाहिए।",
+      "ml": "പാട്ടക്കർഷകർ, പാട്ടഭൂമിയിൽ കൃഷി ചെയ്യുന്നവർ, സ്വയംസഹായ സംഘങ്ങൾ എന്നിവർ ഉൾപ്പെടെ എല്ലാ കർഷകരും KCC-ക്ക് അർഹരാണ്. അവർ കൃഷിയിലോ അനുബന്ധ പ്രവർത്തനങ്ങളിലോ ഏർപ്പെട്ടിരിക്കണം."
+    }
+  },
+  {
+    "category": "Government Schemes",
+    "tags": ["pmfby", "crop insurance"],
+    "question": {
+      "en": "What is the Pradhan Mantri Fasal Bima Yojana (PMFBY)?",
+      "hi": "प्रधानमंत्री फसल बीमा योजना (पीएमएफबीवाई) क्या है?",
+      "ml": "പ്രധാനമന്ത്രി ഫസൽ ഭീമ യോജന (പിഎംഎഫ്ബിവൈ) എന്താണ്?"
+    },
+    "answer": {
+      "en": "PMFBY is a crop insurance scheme that provides financial support to farmers suffering crop loss or damage due to unforeseen events.",
+      "hi": "पीएमएफबीवाई एक फसल बीमा योजना है जो अप्रत्याशित घटनाओं के कारण फसल के नुकसान या क्षति से पीड़ित किसानों को वित्तीय सहायता प्रदान करती है।",
+      "ml": "പ്രധാനമന്ത്രി ഫസൽ ഭീമ യോജന (പിഎംഎഫ്ബിവൈ) എന്നത് പ്രകൃതിദുരന്തങ്ങൾ കാരണം വിളനാശവും നഷ്ടവും സംഭവിക്കുന്ന കർഷകർക്ക് സാമ്പത്തിക സഹായം നൽകുന്ന ഒരു വിള ഇൻഷുറൻസ് പദ്ധതിയാണ്."
+    }
+  },
+  {
+    "category": "Post-Harvest and Marketing",
+    "tags": ["paddy", "storage", "post-harvest"],
+    "question": {
+      "en": "What are the best practices for storing paddy after harvest?",
+      "hi": "कटाई के बाद धान के भंडारण के लिए सबसे अच्छा तरीका क्या है?",
+      "ml": "വിളവെടുപ്പിന് ശേഷം നെല്ല് സംഭരിക്കുന്നതിനുള്ള മികച്ച രീതികൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Paddy should be thoroughly dried to a moisture content of 14% before storing it in a cool, dry, and clean place to prevent fungal growth.",
+      "hi": "धान को 14% की नमी तक अच्छी तरह से सुखाकर, फफूंद से बचाने के लिए एक ठंडी, सूखी और साफ जगह पर संग्रहित किया जाना चाहिए।",
+      "ml": "പുതിയ നെല്ല് സംഭരിക്കുന്നതിന് മുൻപ് ഈർപ്പം 14% ആയി കുറയുന്നത് വരെ നന്നായി ഉണക്കണം. ശേഷം ഫംഗസ് വളരുന്നത് തടയാൻ തണുപ്പുള്ളതും വരണ്ടതും വൃത്തിയുള്ളതുമായ സ്ഥലത്ത് സംഭരിക്കുക."
+    }
+  },
+  {
+    "category": "Post-Harvest and Marketing",
+    "tags": ["marketing", "direct sale"],
+    "question": {
+      "en": "How can farmers sell their produce directly to consumers?",
+      "hi": "किसान अपनी उपज सीधे उपभोक्ताओं को कैसे बेच सकते हैं?",
+      "ml": "കർഷകർക്ക് അവരുടെ ഉൽപ്പന്നങ്ങൾ നേരിട്ട് ഉപഭോക്താക്കൾക്ക് എങ്ങനെ വിൽക്കാം?"
+    },
+    "answer": {
+      "en": "Farmers can use local farmers' markets, online platforms, and direct-to-consumer delivery services to sell their produce directly.",
+      "hi": "किसान अपनी उपज को सीधे बेचने के लिए स्थानीय किसान बाज़ारों, ऑनलाइन प्लेटफार्मों और सीधे-उपभोक्ता वितरण सेवाओं का उपयोग कर सकते हैं।",
+      "ml": "പ്രാദേശിക കർഷക വിപണികൾ, ഓൺലൈൻ പ്ലാറ്റ്‌ഫോമുകൾ, ഉപഭോക്താക്കൾക്ക് നേരിട്ട് എത്തിച്ചുകൊടുക്കുന്ന സേവനങ്ങൾ എന്നിവ ഉപയോഗിച്ച് കർഷകർക്ക് അവരുടെ ഉൽപ്പന്നങ്ങൾ നേരിട്ട് വിൽക്കാൻ സാധിക്കും."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["integrated pest management", "ipm"],
+    "question": {
+      "en": "What is integrated pest management?",
+      "hi": "एकीकृत कीट प्रबंधन क्या है?",
+      "ml": "എന്താണ് സംയോജിത കീടനിയന്ത്രണം?"
+    },
+    "answer": {
+      "en": "Integrated Pest Management (IPM) is a sustainable approach to control pests by combining biological, cultural, physical, and chemical tools in a way that minimizes economic, health, and environmental risks.",
+      "hi": "एकीकृत कीट प्रबंधन (आईपीएम) कीटों को नियंत्रित करने का एक स्थायी तरीका है, जिसमें आर्थिक, स्वास्थ्य और पर्यावरणीय जोखिमों को कम करने के लिए जैविक, सांस्कृतिक, भौतिक और रासायनिक साधनों को मिलाया जाता है।",
+      "ml": "ഒരു പ്രത്യേക കീടത്തെ മാത്രം ലക്ഷ്യമിട്ട് ജൈവ, രാസ, ഭൗതിക മാർഗ്ഗങ്ങൾ സമന്വയിപ്പിച്ച് ഉപയോഗിച്ച് പരിസ്ഥിതിക്ക് ദോഷകരമല്ലാത്ത രീതിയിൽ കീടങ്ങളെ നശിപ്പിക്കുന്ന രീതിയാണ് സംയോജിത കീടനിയന്ത്രണം അഥവാ IPM."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["intercropping", "benefits"],
+    "question": {
+      "en": "What are the benefits of intercropping?",
+      "hi": "अंतरफसल के क्या फायदे हैं?",
+      "ml": "ഇടവിള കൃഷിയുടെ ഗുണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Intercropping increases overall yield, improves soil fertility, and reduces the risk of pest and disease spread by planting multiple crops together.",
+      "hi": "एक साथ कई फसलों को उगाकर, अंतरफसल कुल पैदावार को बढ़ाता है, मिट्टी की उर्वरता में सुधार करता है, और कीट और रोग के प्रसार के जोखिम को कम करता है।",
+      "ml": "ഒരുമിച്ച് ഒന്നിലധികം വിളകൾ കൃഷി ചെയ്യുമ്പോൾ മൊത്തത്തിലുള്ള വിളവ് വർദ്ധിക്കുന്നു, മണ്ണിന്റെ ഫലഭൂയിഷ്ഠത മെച്ചപ്പെടുന്നു, കൂടാതെ കീടങ്ങളുടെയും രോഗങ്ങളുടെയും വ്യാപന സാധ്യത കുറയ്ക്കുന്നു."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["organic", "home garden", "vegetables"],
+    "question": {
+      "en": "How to grow organic vegetables at home?",
+      "hi": "घर पर जैविक सब्जियां कैसे उगाएं?",
+      "ml": "വീട്ടിൽ ജൈവ പച്ചക്കറികൾ എങ്ങനെ കൃഷി ചെയ്യാം?"
+    },
+    "answer": {
+      "en": "Start with good quality seeds, use compost or organic manure, and protect plants from pests using natural sprays like neem oil.",
+      "hi": "अच्छी गुणवत्ता वाले बीजों से शुरुआत करें, कम्पोस्ट या जैविक खाद का उपयोग करें, और नीम के तेल जैसे प्राकृतिक स्प्रे का उपयोग करके पौधों को कीटों से बचाएं।",
+      "ml": "നല്ലയിനം വിത്തുകൾ ഉപയോഗിച്ച് തുടങ്ങുക, കമ്പോസ്റ്റ് അല്ലെങ്കിൽ ജൈവവളം ഉപയോഗിക്കുക, വേപ്പ് എണ്ണ പോലുള്ള പ്രകൃതിദത്ത സ്പ്രേകൾ ഉപയോഗിച്ച് ചെടികളെ കീടങ്ങളിൽ നിന്ന് സംരക്ഷിക്കുക."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["compost", "home", "organic"],
+    "question": {
+      "en": "How to make compost at home?",
+      "hi": "घर पर कम्पोस्ट कैसे बनाएं?",
+      "ml": "വീട്ടിൽ കമ്പോസ്റ്റ് എങ്ങനെ നിർമ്മിക്കാം?"
+    },
+    "answer": {
+      "en": "To make compost, layer green waste (food scraps) and brown waste (dry leaves, twigs) and keep the pile moist. Turn it regularly to aerate it.",
+      "hi": "कम्पोस्ट बनाने के लिए, हरे कचरे (भोजन के टुकड़े) और भूरे कचरे (सूखी पत्तियाँ, टहनियाँ) की परतें बनाएं और ढेर को नम रखें। इसे हवा देने के लिए नियमित रूप से पलटते रहें।",
+      "ml": "കമ്പോസ്റ്റ് ഉണ്ടാക്കാൻ, പച്ച മാലിന്യങ്ങളും (ഭക്ഷണാവശിഷ്ടങ്ങൾ) തവിട്ടുനിറത്തിലുള്ള മാലിന്യങ്ങളും (ഉണങ്ങിയ ഇലകൾ, ചില്ലകൾ) അടുക്കി വെക്കുക, കൂമ്പാരം നനവുള്ളതായി സൂക്ഷിക്കുക. വായുസഞ്ചാരം ലഭിക്കാൻ ഇത് പതിവായി ഇളക്കി കൊടുക്കുക."
+    }
+  },
+  {
+    "category": "Irrigation and Water Use",
+    "tags": ["irrigation", "water", "pepper"],
+    "question": {
+      "en": "How much water do pepper plants need?",
+      "hi": "काली मिर्च के पौधों को कितने पानी की आवश्यकता होती है?",
+      "ml": "കുരുമുളക് ചെടികൾക്ക് എത്ര വെള്ളം വേണം?"
+    },
+    "answer": {
+      "en": "Pepper plants need consistent moisture, especially during the flowering and fruiting stage. Avoid overwatering to prevent root rot.",
+      "hi": "काली मिर्च के पौधों को लगातार नमी की आवश्यकता होती है, खासकर फूल आने और फल लगने की अवस्था में। जड़ सड़न से बचने के लिए अत्यधिक पानी देने से बचें।",
+      "ml": "കുരുമുളക് ചെടികൾക്ക് പ്രത്യേകിച്ചും പൂവിടുന്നതും കായ ഉണ്ടാകുന്നതുമായ ഘട്ടങ്ങളിൽ സ്ഥിരമായി ഈർപ്പം ആവശ്യമാണ്. വേരുകൾ അഴുകുന്നത് തടയാൻ അമിതമായി നനയ്ക്കുന്നത് ഒഴിവാക്കുക."
+    }
+  },
+  {
+    "category": "Irrigation and Water Use",
+    "tags": ["drip irrigation", "water"],
+    "question": {
+      "en": "What is drip irrigation and its benefits?",
+      "hi": "ड्रिप सिंचाई क्या है और इसके क्या फायदे हैं?",
+      "ml": "എന്താണ് തുള്ളിനനയും അതിന്റെ ഗുണങ്ങളും?"
+    },
+    "answer": {
+      "en": "Drip irrigation delivers water directly to the plant's root zone, saving water, reducing weed growth, and improving crop yield.",
+      "hi": "ड्रिप सिंचाई सीधे पौधे की जड़ क्षेत्र में पानी पहुंचाती है, जिससे पानी की बचत होती है, खरपतवार की वृद्धि कम होती है, और फसल की पैदावार में सुधार होता है।",
+      "ml": "തുള്ളിനന, ചെടിയുടെ വേരുകൾക്ക് നേരിട്ട് വെള്ളം എത്തിക്കുന്നു. ഇത് ജലം ലാഭിക്കാനും, കളകളുടെ വളർച്ച കുറയ്ക്കാനും, വിളവ് വർദ്ധിപ്പിക്കാനും സഹായിക്കുന്നു."
+    }
+  },
+  {
+    "category": "Irrigation and Water Use",
+    "tags": ["paddy", "water saving"],
+    "question": {
+      "en": "How to save water during paddy cultivation?",
+      "hi": "धान की खेती के दौरान पानी कैसे बचाएं?",
+      "ml": "നെൽകൃഷിയിൽ എങ്ങനെ വെള്ളം ലാഭിക്കാം?"
+    },
+    "answer": {
+      "en": "Use alternate wetting and drying methods, or consider the System of Rice Intensification (SRI) which uses less water.",
+      "hi": "आप बारी-बारी से गीला और सुखाने के तरीकों का उपयोग कर सकते हैं, या 'सिस्टम ऑफ राइस इंटेंसिफिकेशन (SRI)' को अपना सकते हैं, जिसमें कम पानी का उपयोग होता है।",
+      "ml": "ചെളി നിലം ഇടവിട്ട് നനക്കുകയും ഉണങ്ങാൻ അനുവദിക്കുകയും ചെയ്യുക. ഇത് നെൽകൃഷിയിൽ വെള്ളം ലാഭിക്കാൻ സഹായിക്കും."
+    }
+  },
+  {
+    "category": "Weather and Climate Advisory",
+    "tags": ["weather", "rainfall", "paddy"],
+    "question": {
+      "en": "How does heavy rainfall affect paddy crops?",
+      "hi": "भारी बारिश धान की फसलों को कैसे प्रभावित करती है?",
+      "ml": "കനത്ത മഴ നെൽകൃഷിയെ എങ്ങനെ ബാധിക്കുന്നു?"
+    },
+    "answer": {
+      "en": "Heavy rainfall can cause waterlogging, leading to root rot and nutrient leaching. It can also cause lodging, where the plants bend over, affecting harvest.",
+      "hi": "भारी बारिश से जलभराव हो सकता है, जिससे जड़ सड़न और पोषक तत्वों का बहाव होता है। यह पौधों को झुका भी सकता है, जिससे कटाई प्रभावित होती है।",
+      "ml": "കനത്ത മഴ വെള്ളക്കെട്ടിനും വേരഴുകി പോകാനും കാരണമാകും. ഇത് ചെടികളെ നിലംപതിപ്പിക്കുകയും വിളവെടുപ്പിനെ ദോഷകരമായി ബാധിക്കുകയും ചെയ്യും."
+    }
+  },
+  {
+    "category": "Weather and Climate Advisory",
+    "tags": ["weather", "heat", "crop protection"],
+    "question": {
+      "en": "How to protect crops from extreme heat?",
+      "hi": "फसलों को अत्यधिक गर्मी से कैसे बचाएं?",
+      "ml": "അമിതമായ ചൂടിൽ നിന്ന് വിളകളെ എങ്ങനെ സംരക്ഷിക്കാം?"
+    },
+    "answer": {
+      "en": "Use mulching to retain soil moisture, apply micro-sprinklers for cooling, and provide shade nets for high-value crops to protect them from extreme heat.",
+      "hi": "मिट्टी की नमी बनाए रखने के लिए मल्चिंग का उपयोग करें, ठंडा रखने के लिए सूक्ष्म-छिड़काव यंत्र लगाएं, और अत्यधिक गर्मी से बचाने के लिए उच्च मूल्य वाली फसलों को छाया जाल प्रदान करें।",
+      "ml": "മണ്ണിന്റെ ഈർപ്പം നിലനിർത്താൻ പുതയിടുക, തണുപ്പിക്കാൻ മൈക്രോ സ്പ്രിംഗളറുകൾ ഉപയോഗിക്കുക, ഉയർന്ന മൂല്യമുള്ള വിളകൾക്ക് കഠിനമായ ചൂടിൽ നിന്ന് സംരക്ഷിക്കാൻ തണൽവലകൾ നൽകുക."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["paddy", "planting", "kerala"],
+    "question": {
+      "en": "What is the best time to plant paddy in Kerala?",
+      "hi": "केरल में धान लगाने का सबसे अच्छा समय क्या है?",
+      "ml": "കേരളത്തിൽ നെൽകൃഷിക്ക് അനുയോജ്യമായ സമയം ഏതാണ്?"
+    },
+    "answer": {
+      "en": "In Kerala, paddy is typically planted in two seasons: Mundakan (September-October) and Puncha (January-February).",
+      "hi": "केरल में, धान आमतौर पर दो मौसमों में लगाया जाता है: मुंडकन (सितंबर-अक्टूबर) और पुंजा (जनवरी-फरवरी)।",
+      "ml": "കേരളത്തിൽ സാധാരണയായി രണ്ട് കൃഷി സീസണുകളുണ്ട്: മുണ്ടകൻ (സെപ്റ്റംബർ-ഒക്ടോബർ) మరియు പുഞ്ച (ജനുവരി-ഫെബ്രുവരി)."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["mulching", "benefits"],
+    "question": {
+      "en": "What are the benefits of mulching?",
+      "hi": "मल्चिंग के क्या फायदे हैं?",
+      "ml": "പുതയിടലിന്റെ ഗുണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Mulching helps retain soil moisture, controls weed growth, and regulates soil temperature.",
+      "hi": "मल्चिंग मिट्टी की नमी बनाए रखने, खरपतवारों के विकास को नियंत्रित करने और मिट्टी के तापमान को नियंत्रित करने में मदद करता है।",
+      "ml": "പുതയിടൽ മണ്ണിന്റെ ഈർപ്പം നിലനിർത്താനും, കളകളുടെ വളർച്ചയെ നിയന്ത്രിക്കാനും, മണ്ണിന്റെ താപനിലയെ ക്രമീകരിക്കാനും സഹായിക്കുന്നു."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["organic", "pesticides"],
+    "question": {
+      "en": "What are the benefits of using organic pesticides?",
+      "hi": "जैविक कीटनाशकों का उपयोग करने के क्या फायदे हैं?",
+      "ml": "ജൈവ കീടനാശിനികൾ ഉപയോഗിക്കുന്നതിന്റെ ഗുണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Organic pesticides are environmentally friendly, safe for human health, and do not harm beneficial insects.",
+      "hi": "जैविक कीटनाशक पर्यावरण के अनुकूल हैं, मानव स्वास्थ्य के लिए सुरक्षित हैं, और लाभकारी कीड़ों को नुकसान नहीं पहुंचाते हैं।",
+      "ml": "ജൈവകീടനാശിനികൾ പരിസ്ഥിതി സൗഹൃദവും, മനുഷ്യന്റെ ആരോഗ്യത്തിന് സുരക്ഷിതവും, ഗുണകരമായ പ്രാണികൾക്ക് ദോഷകരമല്ലാത്തതുമാണ്."
+    }
+  },
+  {
+    "category": "Fertilizer & Soil Health",
+    "tags": ["compost", "uses"],
+    "question": {
+      "en": "What are the uses of compost?",
+      "hi": "कम्पोस्ट के क्या उपयोग हैं?",
+      "ml": "കമ്പോസ്റ്റിന്റെ ഉപയോഗങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Compost is used to enrich soil, promote plant growth, and improve water and nutrient retention.",
+      "hi": "कम्पोस्ट का उपयोग मिट्टी को समृद्ध करने, पौधों की वृद्धि को बढ़ावा देने और पानी और पोषक तत्वों को बनाए रखने की क्षमता में सुधार करने के लिए किया जाता है।",
+      "ml": "മണ്ണിനെ സമ്പന്നമാക്കാനും, ചെടികളുടെ വളർച്ചയെ പ്രോത്സാഹിപ്പിക്കാനും, ജലാംശവും പോഷകങ്ങളും നിലനിർത്താനുള്ള ശേഷി മെച്ചപ്പെടുത്താനും കമ്പോസ്റ്റ് ഉപയോഗിക്കുന്നു."
+    }
+  },
+  {
+    "category": "Pest Management",
+    "tags": ["wild animals", "crops", "protection"],
+    "question": {
+      "en": "How to protect crops from wild animals?",
+      "hi": "फसलों को जंगली जानवरों से कैसे बचाएं?",
+      "ml": "കാട്ടുമൃഗങ്ങളിൽ നിന്ന് വിളകളെ എങ്ങനെ സംരക്ഷിക്കാം?"
+    },
+    "answer": {
+      "en": "Use electric fences, trenches, or noise-making devices to deter wild animals. In some cases, a watchman is needed.",
+      "hi": "जंगली जानवरों को रोकने के लिए बिजली के बाड़, खाइयों या शोर मचाने वाले उपकरणों का उपयोग करें। कुछ मामलों में, एक चौकीदार की आवश्यकता होती है।",
+      "ml": "കാട്ടുമൃഗങ്ങളെ അകറ്റാൻ വൈദ്യുത വേലി, കിടങ്ങുകൾ, ശബ്ദമുണ്ടാക്കുന്ന ഉപകരണങ്ങൾ എന്നിവ ഉപയോഗിക്കുക. ചില സന്ദർഭങ്ങളിൽ കാവൽക്കാരെ വെക്കേണ്ടി വരും."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["mango", "seed", "grow"],
+    "question": {
+      "en": "How to grow mango trees from seed?",
+      "hi": "बीज से आम का पेड़ कैसे उगाएं?",
+      "ml": "വിത്തിൽ നിന്ന് മാവ് എങ്ങനെ വളർത്താം?"
+    },
+    "answer": {
+      "en": "To grow a mango tree from seed, remove the outer husk, plant the seed in well-draining soil, and keep it in a warm, sunny spot. Water regularly.",
+      "hi": "बीज से आम का पेड़ उगाने के लिए, बाहरी खोल को हटा दें, बीज को अच्छी जल निकासी वाली मिट्टी में लगाएं, और इसे एक गर्म, धूप वाली जगह पर रखें। नियमित रूप से पानी दें।",
+      "ml": "മാവ് വിത്തിൽ നിന്ന് വളർത്താൻ, പുറത്തെ തൊലി നീക്കം ചെയ്ത്, നന്നായി നീർവാർച്ചയുള്ള മണ്ണിൽ വിത്ത് നടുക, ഒരു ചൂടുള്ള, സൂര്യപ്രകാശമുള്ള സ്ഥലത്ത് സൂക്ഷിക്കുക. പതിവായി നനയ്ക്കുക."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["terrace", "vegetables", "urban farming"],
+    "question": {
+      "en": "How to grow vegetables on a terrace?",
+      "hi": "छत पर सब्जियां कैसे उगाएं?",
+      "ml": "ടെറസ്സിൽ പച്ചക്കറികൾ എങ്ങനെ കൃഷി ചെയ്യാം?"
+    },
+    "answer": {
+      "en": "Choose lightweight pots, use a mix of soil and compost, and ensure proper drainage. Select vegetables that grow well in containers like tomatoes and greens.",
+      "hi": "हल्के गमले चुनें, मिट्टी और कम्पोस्ट के मिश्रण का उपयोग करें, और उचित जल निकासी सुनिश्चित करें। टमाटर और हरी सब्जियों जैसी सब्जियां चुनें जो गमलों में अच्छी तरह से उगती हैं।",
+      "ml": "ഭാരം കുറഞ്ഞ പാത്രങ്ങൾ തിരഞ്ഞെടുക്കുക, മണ്ണും കമ്പോസ്റ്റും കലർന്ന മിശ്രിതം ഉപയോഗിക്കുക, ശരിയായ നീർവാർച്ച ഉറപ്പാക്കുക. തക്കാളി, ഇലക്കറികൾ തുടങ്ങിയ പാത്രങ്ങളിൽ നന്നായി വളരുന്ന പച്ചക്കറികൾ തിരഞ്ഞെടുക്കുക."
+    }
+  },
+  {
+    "category": "Post-Harvest and Marketing",
+    "tags": ["marketing", "produce", "farmers market"],
+    "question": {
+      "en": "How to find local markets for selling organic vegetables?",
+      "hi": "जैविक सब्जियां बेचने के लिए स्थानीय बाज़ार कैसे खोजें?",
+      "ml": "ജൈവ പച്ചക്കറികൾ വിൽക്കാൻ പ്രാദേശിക വിപണികൾ എങ്ങനെ കണ്ടെത്താം?"
+    },
+    "answer": {
+      "en": "Visit your local agricultural office or check online for farmers' market listings in your area. You can also connect with organic food stores.",
+      "hi": "अपने क्षेत्र में किसान बाज़ार की सूची के लिए अपने स्थानीय कृषि कार्यालय में जाएं या ऑनलाइन जांच करें। आप जैविक खाद्य भंडार से भी जुड़ सकते हैं।",
+      "ml": "നിങ്ങളുടെ പ്രദേശത്തെ കർഷക വിപണികളുടെ പട്ടികയ്ക്കായി നിങ്ങളുടെ പ്രാദേശിക കൃഷി ഓഫീസിലോ ഓൺലൈനിലോ പരിശോധിക്കുക. ജൈവ ഭക്ഷ്യ സ്റ്റോറുകളുമായി ബന്ധപ്പെടുകയും ചെയ്യാം."
+    }
+  },
+  {
+    "category": "Irrigation and Water Use",
+    "tags": ["irrigation", "importance"],
+    "question": {
+      "en": "What is the importance of irrigation for crops?",
+      "hi": "फसलों के लिए सिंचाई का क्या महत्व है?",
+      "ml": "വിളകൾക്ക് ജലസേചനത്തിന്റെ പ്രാധാന്യം എന്താണ്?"
+    },
+    "answer": {
+      "en": "Irrigation provides a controlled supply of water to crops, especially during dry periods, ensuring consistent growth and high yield.",
+      "hi": "सिंचाई फसलों को पानी की नियंत्रित आपूर्ति प्रदान करती है, खासकर शुष्क अवधि के दौरान, जिससे लगातार वृद्धि और उच्च पैदावार सुनिश्चित होती है।",
+      "ml": "പ്രത്യേകിച്ച് വരണ്ട സമയങ്ങളിൽ വിളകൾക്ക് നിയന്ത്രിതമായി വെള്ളം നൽകാൻ ജലസേചനം സഹായിക്കുന്നു, ഇത് വിളകളുടെ സ്ഥിരമായ വളർച്ചയും ഉയർന്ന വിളവും ഉറപ്പാക്കുന്നു."
+    }
+  },
+  {
+    "category": "Weather and Climate Advisory",
+    "tags": ["weather", "climate", "advisory"],
+    "question": {
+      "en": "What are the benefits of using a weather advisory for farming?",
+      "hi": "खेती के लिए मौसम सलाह का उपयोग करने के क्या फायदे हैं?",
+      "ml": "കൃഷിക്ക് കാലാവസ്ഥാ ഉപദേശം ഉപയോഗിക്കുന്നതിന്റെ ഗുണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Weather advisories help farmers plan planting, irrigation, and harvesting schedules, and take measures to protect crops from extreme weather.",
+      "hi": "मौसम की सलाह किसानों को बुवाई, सिंचाई और कटाई की योजना बनाने और फसलों को मौसम की चरम स्थितियों से बचाने के लिए उपाय करने में मदद करती है।",
+      "ml": "വിളവ്, ജലസേചനം, വിളവെടുപ്പ് എന്നിവ ആസൂത്രണം ചെയ്യാനും കഠിനമായ കാലാവസ്ഥയിൽ നിന്ന് വിളകളെ സംരക്ഷിക്കാനും കാലാവസ്ഥാ ഉപദേശങ്ങൾ കർഷകരെ സഹായിക്കുന്നു."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["banana", "disease", "kerala"],
+    "question": {
+      "en": "How to identify Banana Bunchy Top Disease?",
+      "hi": "केले में बंची टॉप रोग की पहचान कैसे करें?",
+      "ml": "വാഴയിലെ കൂമ്പുരോഗം എങ്ങനെ തിരിച്ചറിയാം?"
+    },
+    "answer": {
+      "en": "This disease causes leaves to become small and erect, with yellowish margins and stunted growth. Infected plants should be removed and destroyed immediately.",
+      "hi": "इस रोग से पत्तियाँ छोटी और सीधी हो जाती हैं, उनके किनारे पीले हो जाते हैं और विकास रुक जाता है। संक्रमित पौधों को तुरंत हटाकर नष्ट कर देना चाहिए।",
+      "ml": "ഈ രോഗം ബാധിച്ച വാഴയുടെ ഇലകൾ ചെറുതായി മഞ്ഞളിച്ച് മുകളിലേക്ക് കുറ്റിയായി നിൽക്കുകയും വളർച്ച മുരടിക്കുകയും ചെയ്യും. രോഗം ബാധിച്ച വാഴകൾ ഉടനടി പിഴുതുമാറ്റി നശിപ്പിക്കണം."
+    }
+  },
+  {
+    "category": "Pest Management",
+    "tags": ["coconut", "pests", "red palm weevil", "kerala"],
+    "question": {
+      "en": "How to control Red Palm Weevil in coconut trees?",
+      "hi": "नारियल के पेड़ों में लाल पाम वीविल (Red Palm Weevil) को कैसे नियंत्रित करें?",
+      "ml": "തെങ്ങിലെ ചെല്ലിയെ എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "Look for bore holes and reddish-brown fluid oozing from the trunk. Inject a systemic insecticide into the affected area or use pheromone traps to capture adult weevils.",
+      "hi": "तने पर छेद और लाल-भूरे रंग का तरल पदार्थ रिसता हुआ देखें। प्रभावित क्षेत्र में एक प्रणालीगत कीटनाशक डालें या वयस्क वीविल को पकड़ने के लिए फेरोमोन जाल का उपयोग करें।",
+      "ml": "തെങ്ങിൻ തടിയിൽ ദ്വാരങ്ങളും ചുവപ്പു കലർന്ന തവിട്ടുനിറത്തിലുള്ള ദ്രാവകം ഒലിക്കുന്നതും ശ്രദ്ധിക്കുക. കീടനാശിനി കുത്തിവയ്ക്കുകയോ മുതിർന്ന ചെല്ലികളെ പിടിക്കാൻ ഫെറോമോൺ കെണികൾ ഉപയോഗിക്കുകയോ ചെയ്യുക."
+    }
+  },
+  {
+    "category": "Disease Management",
+    "tags": ["coconut", "disease", "bud rot", "kerala"],
+    "question": {
+      "en": "How to identify and treat bud rot in coconut palms?",
+      "hi": "नारियल के पेड़ों में कोमल सड़ांध (Bud rot) की पहचान और इलाज कैसे करें?",
+      "ml": "തെങ്ങുകളിലെ കൂമ്പു ചീയൽ രോഗം എങ്ങനെ തിരിച്ചറിയാം, ചികിത്സിക്കാം?"
+    },
+    "answer": {
+      "en": "Bud rot causes young leaves to rot and turn brown. Remove all infected parts, apply a copper fungicide, and protect the top portion with a plastic cover, especially during the monsoon.",
+      "hi": "इस रोग में नारियल की युवा पत्तियाँ सड़ जाती हैं और भूरी हो जाती हैं। सभी संक्रमित हिस्सों को हटा दें, कॉपर फफूंदनाशक लगाएं और खासकर मॉनसून के दौरान ऊपरी हिस्से को प्लास्टिक से ढक कर रखें।",
+      "ml": "കൂമ്പു ചീയൽ കാരണം തെങ്ങിന്റെ ഇളം ഓലകൾ അഴുകി തവിട്ടുനിറമാകുന്നു. രോഗം ബാധിച്ച ഭാഗങ്ങൾ നീക്കം ചെയ്യുക, കോപ്പർ കുമിൾനാശിനി ഉപയോഗിച്ച് തളിക്കുക, പ്രത്യേകിച്ച് മഴക്കാലത്ത് മുകൾഭാഗം പ്ലാസ്റ്റിക് ഷീറ്റ് ഉപയോഗിച്ച് മൂടി സംരക്ഷിക്കുക."
+    }
+  },
+  {
+    "category": "Disease Management",
+    "tags": ["rubber", "disease", "powdery mildew", "kerala"],
+    "question": {
+      "en": "How to manage powdery mildew in rubber plantations?",
+      "hi": "रबर के बागानों में चूर्णी फफूंदी (पाउडरी मिल्ड्यू) का प्रबंधन कैसे करें?",
+      "ml": "റബ്ബർ തോട്ടങ്ങളിലെ ചൂർണ്ണപൂപ്പൽ (പൊടിപൂപ്പൽ) എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "Powdery mildew appears as white patches on young rubber leaves. Apply Sulphur dust on young leaves as a preventive measure during the dry season, just after defoliation.",
+      "hi": "चूर्णी फफूंदी रबर की युवा पत्तियों पर सफेद धब्बों के रूप में दिखाई देती है। पत्तियों के झड़ने के ठीक बाद, शुष्क मौसम में रोकथाम के उपाय के रूप में युवा पत्तियों पर सल्फर धूल का उपयोग करें।",
+      "ml": "ചൂർണ്ണപൂപ്പൽ റബ്ബറിന്റെ ഇളം ഇലകളിൽ വെളുത്ത പാടുകളായി കാണപ്പെടുന്നു. ഇല കൊഴിച്ചിലിനു ശേഷം വേനൽക്കാലത്ത് രോഗം വരാതിരിക്കാൻ സൾഫർ പൊടി ഉപയോഗിക്കുക."
+    }
+  },
+  {
+    "category": "Pest Management",
+    "tags": ["coconut", "pests", "rhino beetle", "kerala"],
+    "question": {
+      "en": "What are the signs of a rhinoceros beetle infestation in coconut palms?",
+      "hi": "नारियल के पेड़ों में गैंडा बीटल (Rhinoceros beetle) के संक्रमण के क्या संकेत हैं?",
+      "ml": "തെങ്ങുകളിൽ കാണ്ടാമൃഗ വണ്ടി (Rhinoceros beetle) ആക്രമണത്തിന്റെ ലക്ഷണങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "Look for characteristic V-shaped cuts on new leaves and holes in the crown. Insert a hooked wire into the hole to kill the beetle. Apply a mixture of sand and Carbaryl powder to the leaf axils.",
+      "hi": "नई पत्तियों पर 'V' आकार के कट और तने में छेद देखें। बीटल को मारने के लिए छेद में एक मुड़ी हुई तार डालें। पत्तियों के जोड़ पर रेत और कार्बैरिल पाउडर का मिश्रण भी लगाएं।",
+      "ml": "ഇളം ഓലകളിൽ V-ആകൃതിയിലുള്ള മുറിവുകളും, മണ്ടയിൽ ദ്വാരങ്ങളും ഇതിന്റെ പ്രധാന ലക്ഷണങ്ങളാണ്. കൊളുത്തുള്ള കമ്പി ഉപയോഗിച്ച് ദ്വാരത്തിൽ കുത്തി വണ്ടുകളെ നശിപ്പിക്കുക. ഓലമടലുകളുടെ ഇടയിൽ മണലും കാർബാറിൽ പൊടിയും ചേർത്ത മിശ്രിതം നിറയ്ക്കുക."
+    }
+  },
+  {
+    "category": "Pest Management",
+    "tags": ["areca nut", "pest", "nut borer"],
+    "question": {
+      "en": "How to control the nut borer pest in areca nut plantations?",
+      "hi": "सुपारी के बागानों में नट बोरर (Nut borer) कीट को कैसे नियंत्रित करें?",
+      "ml": "കവുങ്ങിലെ കായ് തുരപ്പൻ കീടത്തെ എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "The nut borer larvae bore into the tender nuts, causing them to fall. Apply a systemic insecticide or use biocontrol methods by introducing parasitic wasps.",
+      "hi": "नट बोरर के लार्वा युवा सुपारी में छेद कर देते हैं, जिससे वे गिर जाते हैं। एक प्रणालीगत कीटनाशक का उपयोग करें या परजीवी ततैया को छोड़कर जैव नियंत्रण विधियों का उपयोग करें।",
+      "ml": "കായ് തുരപ്പൻ പുഴുക്കൾ ഇളം അടയ്ക്കയിൽ തുളച്ചുകയറുന്നു, ഇത് അടയ്ക്ക കൊഴിഞ്ഞു വീഴാൻ കാരണമാകും. ഇതിനായി രാസകീടനാശിനികൾ ഉപയോഗിക്കുകയോ ജൈവരീതിയിൽ പരാദ പ്രാണികളെ ഉപയോഗിക്കുകയോ ചെയ്യാം."
+    }
+  },
+  {
+    "category": "Fertilizer & Soil Health",
+    "tags": ["soil", "acidity", "management"],
+    "question": {
+      "en": "How to manage the high soil acidity common in Kerala?",
+      "hi": "केरल में आम तौर पर पाई जाने वाली उच्च मिट्टी की अम्लता को कैसे नियंत्रित करें?",
+      "ml": "കേരളത്തിൽ സാധാരണയായുള്ള മണ്ണിന്റെ ഉയർന്ന അമ്ലത എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "High soil acidity affects nutrient availability. Apply lime or dolomite as recommended by a soil test. This should be done well before planting or fertilizing.",
+      "hi": "उच्च मिट्टी की अम्लता पोषक तत्वों की उपलब्धता को प्रभावित करती है। मिट्टी परीक्षण की सिफारिश के अनुसार चूना या डोलोमाइट का उपयोग करें। यह बुवाई या उर्वरक डालने से पहले करना चाहिए।",
+      "ml": "മണ്ണിന്റെ ഉയർന്ന അമ്ലത പോഷക ലഭ്യതയെ ബാധിക്കുന്നു. മണ്ണ് പരിശോധനയുടെ അടിസ്ഥാനത്തിൽ കുമ്മായം അല്ലെങ്കിൽ ഡോളോമൈറ്റ് ചേർക്കുക. ഇത് വിതയ്ക്കുന്നതിനോ വളമിടുന്നതിനോ മുൻപ് ചെയ്യണം."
+    }
+  },
+  {
+    "category": "General Farming Tips",
+    "tags": ["intercropping", "rubber", "kerala"],
+    "question": {
+      "en": "What are the best crops for intercropping in rubber plantations?",
+      "hi": "रबर के बागानों में अंतरफसल के लिए सबसे अच्छी फसलें कौन सी हैं?",
+      "ml": "റബ്ബർ തോട്ടങ്ങളിൽ ഇടവിള കൃഷിക്ക് ഏറ്റവും അനുയോജ്യമായ വിളകൾ ഏതെല്ലാമാണ്?"
+    },
+    "answer": {
+      "en": "Young rubber plantations can be intercropped with pineapples, medicinal plants, or nitrogen-fixing cover crops like legumes. This helps utilize space and improves soil fertility.",
+      "hi": "युवा रबर के बागानों में अनानास, औषधीय पौधे, या फलियों जैसी नाइट्रोजन-स्थिरीकरण वाली फसलों के साथ अंतरफसल की जा सकती है। यह जगह का उपयोग करने में मदद करता है और मिट्टी की उर्वरता में सुधार करता है।",
+      "ml": "റബ്ബർ തോട്ടങ്ങളിൽ കൈതച്ചക്ക, ഔഷധസസ്യങ്ങൾ, പയറുവർഗ്ഗങ്ങൾ എന്നിവ ഇടവിളയായി കൃഷി ചെയ്യാം. ഇത് സ്ഥലം ഉപയോഗിക്കാൻ സഹായിക്കുകയും മണ്ണിന്റെ ഫലഭൂയിഷ്ഠത വർദ്ധിപ്പിക്കുകയും ചെയ്യുന്നു."
+    }
+  },
+  {
+    "category": "Irrigation and Water Use",
+    "tags": ["monsoon", "drainage", "waterlogging", "kerala"],
+    "question": {
+      "en": "How to prevent waterlogging during heavy monsoon rains?",
+      "hi": "भारी मॉनसून बारिश के दौरान जलभराव को कैसे रोकें?",
+      "ml": "കനത്ത മഴയിൽ വെള്ളക്കെട്ട് എങ്ങനെ തടയാം?"
+    },
+    "answer": {
+      "en": "Ensure proper drainage by creating trenches or raised beds. This is crucial for crops like banana and vegetables to prevent root rot during heavy rains.",
+      "hi": "खाइयां या ऊँची क्यारियाँ बनाकर उचित जल निकासी सुनिश्चित करें। भारी बारिश के दौरान जड़ सड़न को रोकने के लिए केले और सब्जियों जैसी फसलों के लिए यह महत्वपूर्ण है।",
+      "ml": "ചാലുകളോ ഉയർത്തിയ തടങ്ങളോ ഉണ്ടാക്കി ശരിയായ നീർവാർച്ച ഉറപ്പാക്കുക. കനത്ത മഴയിൽ വേരഴുകുന്നത് തടയാൻ വാഴ, പച്ചക്കറികൾ തുടങ്ങിയ വിളകൾക്ക് ഇത് വളരെ പ്രധാനമാണ്."
+    }
+  },
+  {
+    "category": "Post-Harvest and Marketing",
+    "tags": ["rubber", "processing", "sheets", "kerala"],
+    "question": {
+      "en": "What are the best practices for processing rubber sheets after tapping?",
+      "hi": "रबर टैपिंग के बाद रबर शीट बनाने का सबसे अच्छा तरीका क्या है?",
+      "ml": "റബ്ബർ ഷീറ്റുകൾ ഉണ്ടാക്കാൻ ടാപ്പിംഗിനു ശേഷം ചെയ്യേണ്ട കാര്യങ്ങൾ എന്തൊക്കെയാണ്?"
+    },
+    "answer": {
+      "en": "After tapping, latex should be coagulated using formic acid, rolled into uniform sheets, and then dried in a smokehouse to get a good-quality sheet.",
+      "hi": "टैपिंग के बाद, लेटेक्स को फॉर्मिक एसिड का उपयोग करके जमाया जाना चाहिए, एक समान शीट में रोल किया जाना चाहिए, और फिर अच्छी गुणवत्ता वाली शीट प्राप्त करने के लिए इसे धूम्रपान घर (smokhouse) में सुखाया जाना चाहिए।",
+      "ml": "ടാപ്പിംഗിനു ശേഷം, ലാറ്റക്സ് ഫോർമിക് ആസിഡ് ഉപയോഗിച്ച് കട്ടപിടിപ്പിക്കുക, ഷീറ്റുകളായി ഉരുട്ടി, പിന്നീട് നല്ല നിലവാരമുള്ള ഷീറ്റ് ലഭിക്കാൻ പുകപ്പുരയിൽ ഉണക്കുക."
+    }
+  },
+  {
+    "category": "Government Schemes",
+    "tags": ["loan", "subsidy", "Krishi Bhavan", "kerala"],
+    "question": {
+      "en": "How can I get financial assistance for my farm from Krishi Bhavan?",
+      "hi": "मैं कृषि भवन से अपने खेत के लिए वित्तीय सहायता कैसे प्राप्त कर सकता हूँ?",
+      "ml": "കൃഷിഭവനിൽ നിന്ന് എന്റെ കൃഷിക്ക് സാമ്പത്തിക സഹായം എങ്ങനെ ലഭിക്കും?"
+    },
+    "answer": {
+      "en": "You need to register as a farmer at your local Krishi Bhavan. You can then apply for various state-level schemes for subsidies on seeds, fertilizers, and machinery.",
+      "hi": "आपको अपने स्थानीय कृषि भवन में एक किसान के रूप में पंजीकरण कराना होगा। फिर आप बीज, उर्वरक और मशीनरी पर सब्सिडी के लिए विभिन्न राज्य-स्तरीय योजनाओं के लिए आवेदन कर सकते हैं।",
+      "ml": "നിങ്ങളുടെ പ്രാദേശിക കൃഷിഭവനിൽ ഒരു കർഷകനായി രജിസ്റ്റർ ചെയ്യണം. തുടർന്ന് വിത്തുകൾ, വളങ്ങൾ, യന്ത്രങ്ങൾ എന്നിവയ്ക്ക് സബ്സിഡികൾ ലഭിക്കുന്ന വിവിധ സംസ്ഥാനതല പദ്ധതികൾക്ക് അപേക്ഷിക്കാം."
+    }
+  },
+  {
+    "category": "Disease Management",
+    "tags": ["cardamom", "disease", "stem borer"],
+    "question": {
+      "en": "What is the best way to control stem borer in cardamom?",
+      "hi": "इलायची में तना छेदक (Stem borer) को नियंत्रित करने का सबसे अच्छा तरीका क्या है?",
+      "ml": "ഏലക്കയിലെ തണ്ടുതുരപ്പനെ എങ്ങനെ നിയന്ത്രിക്കാം?"
+    },
+    "answer": {
+      "en": "The larvae bore into the stem, causing wilting and death. Prune and destroy all affected parts. Use a systemic insecticide or release bio-control agents like parasitic wasps.",
+      "hi": "लार्वा तने में छेद कर देते हैं, जिससे पौधे मुरझा जाते हैं और मर जाते हैं। सभी प्रभावित हिस्सों को काट कर नष्ट कर दें। एक प्रणालीगत कीटनाशक का उपयोग करें या परजीवी ततैयों जैसे जैव-नियंत्रण एजेंटों को छोड़ दें।",
+      "ml": "പുഴുക്കൾ തണ്ടിൽ തുരന്നുകയറുന്നത് ചെടി വാടാനും നശിക്കാനും കാരണമാകുന്നു. രോഗം ബാധിച്ച ഭാഗങ്ങൾ വെട്ടിമാറ്റി നശിപ്പിക്കുക. രാസകീടനാശിനി ഉപയോഗിക്കുകയോ പരാദ പ്രാണികളെ പോലുള്ള ജൈവ നിയന്ത്രണ ഏജന്റുകളെ വിടുകയോ ചെയ്യുക."
+  }
+},
+{
+  "category": "General Farming Tips",
+  "tags": ["monsoon", "farming", "kerala", "paddy"],
+  "question": {
+    "en": "What preparations should be made for paddy cultivation before the monsoon in Kerala?",
+    "hi": "केरल में मॉनसून से पहले धान की खेती के लिए क्या तैयारी करनी चाहिए?",
+    "ml": "കേരളത്തിൽ മൺസൂണിന് മുൻപ് നെൽകൃഷിക്ക് എന്തൊക്കെ തയ്യാറെടുപ്പുകൾ ചെയ്യണം?"
+  },
+  "answer": {
+    "en": "Before the monsoon, ensure the fields are well-ploughed, remove weeds, and repair bunds to prevent water loss. This helps in efficient land preparation for planting.",
+    "hi": "मॉनसून से पहले, यह सुनिश्चित करें कि खेत अच्छी तरह से जुते हों, खरपतवार हटा दिए गए हों और पानी के नुकसान को रोकने के लिए मेड़ (bunds) की मरम्मत की गई हो। यह रोपाई के लिए कुशल भूमि की तैयारी में मदद करता है।",
+    "ml": "മൺസൂണിന് മുൻപ് നിലം നന്നായി ഉഴുതുമറിച്ചെന്ന് ഉറപ്പാക്കുക, കളകൾ നീക്കം ചെയ്യുക, വെള്ളം നഷ്ടപ്പെടാതിരിക്കാൻ വരമ്പുകൾ നന്നാക്കുക. ഇത് വിതയ്ക്കലിനുള്ള ഭൂമി തയ്യാറാക്കുന്നതിൽ സഹായകമാകും."
+  }
+}
+]
