@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen>
     _controller.forward();
 
     // Navigate to Home after a delay
-    Timer(const Duration(seconds: 2), () {
+    Timer(const Duration(seconds: 1), () {
       Navigator.pushReplacementNamed(context, '/login');
     });
   }
@@ -64,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen>
             child: FadeTransition(
               opacity: _fadeAnimation,
               child: const Text(
-                'Digital Krishi',
+                '',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 28,

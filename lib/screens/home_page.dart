@@ -8,7 +8,7 @@ import '../weather/weather_page.dart';
 import '../weather/weather_service.dart';
 import '../weather/weather_model.dart';
 import '../chatbot/chatbot_page.dart';
-import 'disease_page.dart';
+import '../diseases/pages/disease_page.dart';
 import '../marketPrice/market_price_page.dart';
 import 'drip_irrigation.dart';
 import 'crop_calendar_page.dart';
@@ -274,7 +274,7 @@ class _HomePageState extends State<HomePage>
       {
         "title": "Chat with AI",
         "icon": "assets/icons/chat.png",
-        "page": const ChatbotPage(),
+        "page": const ChatBotPage(),
       },
       {
         "title": "Market Price",

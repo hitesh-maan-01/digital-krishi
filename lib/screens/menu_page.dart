@@ -1,11 +1,34 @@
+// menu_page.dart
 import 'package:digital_krishi/Authentication/onboarding_page.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // <-- ADD THIS IMPORT
 import '../community/community_list_page.dart';
 import 'profile_page.dart';
-//import '../Authentication/onboarding_page.dart';
 
 class MenuPage extends StatelessWidget {
   const MenuPage({super.key});
+
+  // Function to handle sign out
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      // 1. Clear the Supabase session
+      await Supabase.instance.client.auth.signOut();
+
+      // 2. Navigate to the Onboarding Page and remove all previous routes
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const OnboardingPage()),
+          (Route<dynamic> route) => false, // Remove all previous routes
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Sign out failed: $e')));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,12 +129,10 @@ class MenuPage extends StatelessWidget {
               );
               Navigator.pop(context);
             }),
+            // *** UPDATED SIGN OUT LOGIC ***
             _buildMenuItem(context, Icons.exit_to_app, 'Sign out', () {
-              Navigator.pop(context); // Close the drawer
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const OnboardingPage()),
-              );
+              Navigator.pop(context); // Close the drawer immediately
+              _signOut(context); // Call the sign-out function
             }),
           ],
         ),

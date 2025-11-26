@@ -1,45 +1,22 @@
-// lib/services/speech_service.dart
-import 'package:speech_to_text/speech_to_text.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter_tts/flutter_tts.dart';
 
 class SpeechService {
-  final SpeechToText _speechToText = SpeechToText();
-  bool _isInitialized = false;
+  final stt.SpeechToText _speech = stt.SpeechToText();
+  final FlutterTts _tts = FlutterTts();
 
-  bool get isListening => _speechToText.isListening;
-  bool get isInitialized => _isInitialized;
+  Future<bool> initSTT() async => await _speech.initialize();
 
-  Future<bool> initSTT() async {
-    if (_isInitialized) return true;
-
-    // Check for availability and request permission
-    bool available = await _speechToText.initialize(
-      onError: (val) => print('STT Error: ${val.errorMsg}'),
-      onStatus: (val) => print('STT Status: $val'),
-    );
-    _isInitialized = available;
-    return available;
-  }
-
-  void listen(Function(String text) onResult) {
-    if (!_isInitialized || isListening) return;
-
-    _speechToText.listen(
-      onResult: (result) {
-        if (result.finalResult) {
-          onResult(result.recognizedWords);
-        }
-      },
-      localeId: 'en_IN', // Example locale
+  void listen(Function(String) onResult) async {
+    await _speech.listen(
+      onResult: (result) => onResult(result.recognizedWords),
     );
   }
 
-  void stopListening() {
-    if (isListening) {
-      _speechToText.stop();
-    }
-  }
+  void stopListening() async => await _speech.stop();
 
-  void dispose() {
-    _speechToText.stop();
+  Future<void> speak(String text, String langCode) async {
+    await _tts.setLanguage(langCode);
+    await _tts.speak(text);
   }
 }
