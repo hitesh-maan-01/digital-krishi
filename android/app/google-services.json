@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "367853296430",
+    "project_id": "modern-krishi-53641",
+    "storage_bucket": "modern-krishi-53641.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:367853296430:android:35df08a26dcdf2454e78bf",
+        "android_client_info": {
+          "package_name": "com.example.digital_krishi"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCClXbJij9rqCx5rU2O1OwYwCIxVl6G6DY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

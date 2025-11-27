@@ -15,7 +15,7 @@ import 'crop_calendar_page.dart';
 import 'organic_farming.dart';
 import 'notifications_page.dart';
 import 'menu_page.dart';
-import 'package:digital_krishi/crop_recommendation.dart';
+import 'package:digital_krishi/screens/crop_recommendation.dart';
 import 'schemes_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -337,7 +337,7 @@ class _HomePageState extends State<HomePage>
       {
         "title": "Organic Farming",
         "icon": "assets/icons/fertilizer.png",
-        "page": const OrganicFarmingScreen(),
+        "page": const OrganicFarmingGuideScreen(),
       },
       {
         "title": "Crop Recommendation",

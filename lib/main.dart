@@ -10,6 +10,8 @@ import 'screens/profile_page.dart';
 import 'community/community_list_page.dart';
 import 'Authentication/onboarding_page.dart';
 
+import 'package:firebase_core/firebase_core.dart'; // ADDED
+
 Future<void> main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +23,9 @@ Future<void> main() async {
       logLevel: RealtimeLogLevel.info,
     ),
   );
+
+  //Initialize Firebase
+  await Firebase.initializeApp(); // ADDED
 
   // Initialize Hive
   await Hive.initFlutter();

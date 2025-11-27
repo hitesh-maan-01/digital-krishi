@@ -18,4 +18,14 @@ class WeatherUtils {
     if (code >= 8000) return "⚡";
     return "❓";
   }
+
+  static String getWeatherCondition(int code) {
+    if (code == 1000) return "Clear Skies";
+    if ([1100, 1101].contains(code)) return "Mostly Sunny / Partly Cloudy";
+    if (code == 1001) return "Cloudy";
+    if ([4000, 4200, 4201].contains(code)) return "Rain / Showers";
+    if ([5000, 5001].contains(code)) return "Snow";
+    if (code >= 8000) return "Thunderstorms";
+    return "Variable Weather";
+  }
 }

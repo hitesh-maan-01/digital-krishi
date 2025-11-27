@@ -55,12 +55,14 @@ class HourlyForecast {
   final double temperature;
   final double windSpeed;
   final double precipitationProbability;
+  final int weatherCode;
 
   HourlyForecast({
     required this.time,
     required this.temperature,
     required this.windSpeed,
     required this.precipitationProbability,
+    required this.weatherCode,
   });
 
   factory HourlyForecast.fromJson(Map<String, dynamic> json) {
@@ -71,6 +73,7 @@ class HourlyForecast {
       windSpeed: (values['windSpeed'] ?? 0).toDouble(),
       precipitationProbability: (values['precipitationProbability'] ?? 0)
           .toDouble(),
+      weatherCode: (values['weatherCode'] ?? 0).toInt(),
     );
   }
 
@@ -79,6 +82,7 @@ class HourlyForecast {
     "temperature": temperature,
     "windSpeed": windSpeed,
     "precipitationProbability": precipitationProbability,
+    "weatherCode": weatherCode,
   };
 }
 

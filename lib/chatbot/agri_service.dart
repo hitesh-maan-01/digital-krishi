@@ -22,15 +22,18 @@ class AgriService {
             if (parts is List && parts.isNotEmpty) {
               final part = parts[0];
               if (part is String) return part;
-              if (part is Map && part.containsKey('text'))
+              if (part is Map && part.containsKey('text')) {
                 return part['text'].toString();
+              }
               // try other keys
-              if (part is Map && part.containsKey('content'))
+              if (part is Map && part.containsKey('content')) {
                 return part['content'].toString();
+              }
             }
             // sometimes content -> text directly
-            if (content is Map && content.containsKey('text'))
+            if (content.containsKey('text')) {
               return content['text'].toString();
+            }
           }
         }
       }
@@ -38,8 +41,9 @@ class AgriService {
       // Another common shape: { output: [ { content: "..." } ] }
       if (jsonBody['output'] is List && jsonBody['output'].isNotEmpty) {
         final out0 = jsonBody['output'][0];
-        if (out0 is Map && out0['content'] != null)
+        if (out0 is Map && out0['content'] != null) {
           return out0['content'].toString();
+        }
       }
 
       // Last resort: if top-level 'text' exists
@@ -162,7 +166,7 @@ $imagePart
         }
         // fallback: show raw body but trimmed
         final bodyPreview = (response.body.length > 800)
-            ? response.body.substring(0, 800) + "..."
+            ? "${response.body.substring(0, 800)}..."
             : response.body;
         return "⚠️ API ERROR (status ${response.statusCode}): $bodyPreview";
       }

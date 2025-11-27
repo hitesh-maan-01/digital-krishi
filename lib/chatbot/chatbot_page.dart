@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import '../chatbot/agri_service.dart';
 import '../chatbot/speech_service.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ChatBotPage extends StatefulWidget {
   const ChatBotPage({super.key});
 
@@ -152,6 +154,7 @@ class _ChatBotPageState extends State<ChatBotPage> {
       context: context,
       builder: (ctx) {
         final TextEditingController reasonCtrl = TextEditingController();
+
         return AlertDialog(
           title: const Text("Escalation / Feedback"),
           content: Column(
@@ -170,15 +173,31 @@ class _ChatBotPageState extends State<ChatBotPage> {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(ctx);
+
+                // Find user + bot messages
+                final botReply = messages[msgIndex]["msg"];
+                final userMessage =
+                    (msgIndex > 0 && messages[msgIndex - 1]["from"] == "user")
+                    ? messages[msgIndex - 1]["msg"]
+                    : "Unknown";
+
+                // Save escalation in Firestore EXACTLY as your dashboard expects
+                await FirebaseFirestore.instance.collection("escalations").add({
+                  "user_message": userMessage,
+                  "bot_reply": botReply,
+                  "reason": reasonCtrl.text.trim(),
+                  "timestamp": Timestamp.now(),
+                  "status": "pending", // 🔥 REQUIRED for dashboard filter
+                  "userSatisfied": false, // 🔥 MATCH your dashboard
+                });
+
+                // Highlight the message
                 setState(() => messages[msgIndex]["escalated"] = true);
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      "Escalation noted. Please contact Krishi Officer.",
-                    ),
-                  ),
+                  const SnackBar(content: Text("Escalation submitted.")),
                 );
               },
               child: const Text("Escalate"),

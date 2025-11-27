@@ -63,10 +63,10 @@ class PytorchModelService {
       // This typically returns probabilities for all classes
       final resultList = await _model!.getImagePredictionList(imageBytes);
 
-      print('📊 Result list length: ${resultList?.length ?? 0}');
+      print('📊 Result list length: ${resultList.length ?? 0}');
       print('📊 Expected labels: ${_labels!.length}');
 
-      if (resultList == null || resultList.isEmpty) {
+      if (resultList.isEmpty) {
         print('⚠ No results from model');
         return null;
       }
@@ -196,9 +196,9 @@ class PytorchModelService {
       if (result is String) {
         predictions = _parseStringResult(result);
       } else if (result is Map) {
-        predictions = _parseMapResult(result as Map<dynamic, dynamic>);
+        predictions = _parseMapResult(result);
       } else if (result is List) {
-        predictions = _parseResultList(result as List<dynamic>);
+        predictions = _parseResultList(result);
       } else if (result is int || result is double) {
         predictions = _parseNumericResult(result);
       }

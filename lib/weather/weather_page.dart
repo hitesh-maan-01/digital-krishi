@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'weather_service.dart';
 import 'weather_model.dart';
+import 'weather_utils.dart';
+
+// --- 1. Custom Theme Colors ---
+const Color kDaySkyBlue = Color(0xFF87CEEB);
+const Color kNightIndigo = Color(0xFF303F9F);
+const Color kAccentGold = Color(0xFFFFC107);
+const Color kLightBackground = Color(0xFFFAFAFA);
 
 class WeatherPage extends StatefulWidget {
   final double latitude;
@@ -66,213 +74,409 @@ class _WeatherPageState extends State<WeatherPage> {
     } catch (e) {
       setState(() => _loading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("City not found: $_searchController")),
+        SnackBar(
+          content: Text("City not found: ${_searchController.text.trim()}"),
+        ),
       );
     }
   }
 
-  IconData _getWeatherIcon(int code, bool isNight) {
-    if (isNight) {
-      return Icons.nights_stay;
+  // --- Helper for Dynamic Hourly Background ---
+  Color _getHourlyBackgroundColor(
+    DateTime time,
+    DateTime? sunrise,
+    DateTime? sunset,
+  ) {
+    if (sunrise == null || sunset == null) {
+      // Fallback: simple night/day based on hour
+      return time.hour >= 19 || time.hour < 6
+          ? kNightIndigo.withOpacity(0.1)
+          : kDaySkyBlue.withOpacity(0.1);
     }
-    if (code == 1000) return Icons.wb_sunny;
-    if ([1100, 1101].contains(code)) return Icons.cloud;
-    if ([4000, 4200].contains(code)) return Icons.grain;
-    return Icons.cloud_queue;
+    // Check if the current hour is between sunrise and sunset
+    final isDaytime = time.isAfter(sunrise) && time.isBefore(sunset);
+    return isDaytime
+        ? kDaySkyBlue.withOpacity(0.1)
+        : kNightIndigo.withOpacity(0.1);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // --- Themed AppBar: Transparent ---
       appBar: AppBar(
         title: Text("Weather Forecast", style: GoogleFonts.poppins()),
-        backgroundColor: const Color.fromARGB(255, 5, 150, 105),
-        titleTextStyle: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: false, // Align title to the left
+        titleTextStyle: const TextStyle(
+          color: Colors.black87,
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+        ),
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: () => _loadWeather(widget.latitude, widget.longitude),
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      // Search bar
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: "Enter city name",
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
+      // --- Themed Scaffold Body Background Gradient ---
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [kLightBackground, Color(0xFFEFEFEF)],
+          ),
+        ),
+        child: _loading
+            ? const Center(child: CircularProgressIndicator(color: kDaySkyBlue))
+            : RefreshIndicator(
+                onRefresh: () =>
+                    _loadWeather(widget.latitude, widget.longitude),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Search bar (Enhanced style)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                decoration: InputDecoration(
+                                  hintText: "Enter city name",
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(30),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 15,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.search, color: Colors.teal),
-                            onPressed: _searchCity,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.search,
+                                color: kDaySkyBlue,
+                                size: 30,
+                              ),
+                              onPressed: _searchCity,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
 
-                      // Current Weather
-                      if (_current != null)
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 4,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
+                        // --- 2. Current Weather Card Enhancement ---
+                        if (_current != null)
+                          Container(
+                            // Card Gradient/Shape
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFFB2EBF2), kDaySkyBlue],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: kDaySkyBlue.withOpacity(0.3),
+                                  blurRadius: 15,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
                             child: Column(
                               children: [
-                                Text(
-                                  _city.isNotEmpty ? _city : "Your Location",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 24,
+                                    left: 24,
+                                    right: 24,
+                                    bottom: 16,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        _city.isNotEmpty
+                                            ? _city
+                                            : "Current Location",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      // Use Emoji from WeatherUtils
+                                      Text(
+                                        WeatherUtils.getWeatherEmoji(
+                                          _current!.weatherCode,
+                                        ),
+                                        style: const TextStyle(fontSize: 80),
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Text(
+                                        "${_current!.temperature.toStringAsFixed(1)}°C",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 60,
+                                          fontWeight: FontWeight.w900,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      Text(
+                                        "Feels Like: ${_current!.feelsLike.toStringAsFixed(1)}°C",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          color: Colors.white70,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 15),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          _buildDetail(
+                                            Icons.water_drop,
+                                            "${_current!.humidity.toStringAsFixed(0)}%",
+                                            "Humidity",
+                                          ),
+                                          _buildDetail(
+                                            Icons.air,
+                                            "${_current!.windSpeed.toStringAsFixed(0)}km/h",
+                                            "Wind Speed",
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                Icon(
-                                  _getWeatherIcon(
-                                    _current!.weatherCode,
-                                    DateTime.now().hour >= 18,
+                                // Use a Banner for Weather Condition
+                                Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                    horizontal: 20,
                                   ),
-                                  size: 60,
-                                  color: Colors.teal,
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  "${_current!.temperature.toStringAsFixed(1)}°C",
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
+                                  decoration: BoxDecoration(
+                                    color: kAccentGold.withOpacity(0.95),
+                                    borderRadius: const BorderRadius.only(
+                                      bottomLeft: Radius.circular(24),
+                                      bottomRight: Radius.circular(24),
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  "Humidity: ${_current!.humidity.toStringAsFixed(0)}%",
-                                  style: GoogleFonts.poppins(fontSize: 16),
+                                  child: Center(
+                                    child: Text(
+                                      WeatherUtils.getWeatherCondition(
+                                        _current!.weatherCode,
+                                      ).toUpperCase(),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
 
-                      const SizedBox(height: 20),
+                        const SizedBox(height: 30),
 
-                      // Hourly Forecast
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Next 24 Hours",
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        height: 140,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _hourly.length,
-                          itemBuilder: (context, index) {
-                            final hour = _hourly[index];
-                            return Container(
-                              width: 90,
-                              margin: const EdgeInsets.symmetric(horizontal: 6),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.shade200,
-                                    blurRadius: 5,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    "${hour.time.hour}:00",
-                                    style: GoogleFonts.poppins(fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Icon(Icons.thermostat, color: Colors.teal),
-                                  Text(
-                                    "${hour.temperature.toStringAsFixed(0)}°C",
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
-                      // Daily Forecast
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "7-Day Forecast",
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Column(
-                        children: _daily.map((day) {
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        // Hourly Forecast
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Next 24 Hours",
+                            style: GoogleFonts.poppins(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
                             ),
-                            child: ListTile(
-                              leading: Icon(
-                                Icons.calendar_today,
-                                color: Colors.teal,
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        SizedBox(
+                          height: 140,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: _hourly.length,
+                            itemBuilder: (context, index) {
+                              final hour = _hourly[index];
+                              final sequentialTime = DateTime.now().add(
+                                Duration(hours: index),
+                              );
+                              return Container(
+                                width: 100,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                                padding: const EdgeInsets.all(12),
+                                // --- 3. Dynamic Backgrounds for Hourly ---
+                                decoration: BoxDecoration(
+                                  color: _getHourlyBackgroundColor(
+                                    sequentialTime,
+                                    _current?.sunrise,
+                                    _current?.sunset,
+                                  ),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: kDaySkyBlue.withOpacity(0.3),
+                                  ),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // Increased Spacing
+                                    Text(
+                                      DateFormat.j().format(sequentialTime),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 10),
+                                    // Use smaller icons (assuming a code of 1000 for simplicity)
+                                    Icon(
+                                      WeatherUtils.getWeatherIcon(
+                                        hour.weatherCode,
+                                      ),
+                                      color: kDaySkyBlue,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(height: 10),
+                                    Text(
+                                      "${hour.temperature.toStringAsFixed(0)}°C",
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                    Text(
+                                      "💧${hour.precipitationProbability.toStringAsFixed(0)}%",
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 12,
+                                        color: kNightIndigo,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+
+                        const SizedBox(height: 30),
+
+                        // Daily Forecast
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "6-Day Forecast",
+                            style: GoogleFonts.poppins(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        Column(
+                          // --- 4. Daily Forecast Enhancement ---
+                          children: _daily.asMap().entries.map((entry) {
+                            final index = entry.key;
+                            final day = entry.value;
+
+                            String getDayLabel(int index) {
+                              if (index == 0) return "Today";
+                              if (index == 1) return "Tomorrow";
+                              final sequentialDay = DateTime.now().add(
+                                Duration(days: index),
+                              );
+                              return DateFormat('EEEE').format(sequentialDay);
+                            }
+
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18),
                               ),
-                              title: Text(
-                                "${day.time.day}/${day.time.month}/${day.time.year}",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                              elevation: 3,
+                              child: ListTile(
+                                // Use Weather Emoji as the leading icon
+                                leading: Text(
+                                  WeatherUtils.getWeatherEmoji(
+                                    day.precipitationProbability > 40
+                                        ? 4000
+                                        : 1000,
+                                  ),
+                                  style: const TextStyle(fontSize: 32),
+                                ),
+                                title: Text(
+                                  getDayLabel(index),
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                // Prominent Max/Min Temperatures
+                                subtitle: Row(
+                                  children: [
+                                    Text(
+                                      "Max: ${day.maxTemperature.toStringAsFixed(0)}°C",
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.deepOrange,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 15),
+                                    Text(
+                                      "Min: ${day.minTemperature.toStringAsFixed(0)}°C",
+                                      style: GoogleFonts.poppins(
+                                        color: kNightIndigo.withOpacity(0.8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                trailing: Text(
+                                  "💧${day.precipitationProbability.toStringAsFixed(0)}%",
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w600,
+                                    color: kNightIndigo,
+                                  ),
                                 ),
                               ),
-                              subtitle: Text(
-                                "Min: ${day.minTemperature.toStringAsFixed(0)}°C, Max: ${day.maxTemperature.toStringAsFixed(0)}°C",
-                                style: GoogleFonts.poppins(),
-                              ),
-                              trailing: Text(
-                                "💧${day.precipitationProbability.toStringAsFixed(0)}%",
-                                style: GoogleFonts.poppins(),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ],
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
+      ),
+    );
+  }
+
+  // Helper widget for current weather card details
+  Widget _buildDetail(IconData icon, String value, String label) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.white, size: 24),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12),
+        ),
+      ],
     );
   }
 }
