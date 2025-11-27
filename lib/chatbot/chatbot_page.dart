@@ -292,7 +292,10 @@ class _ChatBotPageState extends State<ChatBotPage>
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text("Cancel"),
+              child: const Text(
+                "Cancel",
+                selectionColor: Color.fromARGB(255, 33, 139, 75),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -320,7 +323,10 @@ class _ChatBotPageState extends State<ChatBotPage>
                   const SnackBar(content: Text("Escalation submitted.")),
                 );
               },
-              child: const Text("Escalate"),
+              child: const Text(
+                "Escalate",
+                selectionColor: Color.fromARGB(255, 33, 139, 75),
+              ),
             ),
           ],
         );

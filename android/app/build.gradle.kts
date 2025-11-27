@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.example.digital_krishi"
-    compileSdk = 34
+    compileSdk = 35
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -24,7 +24,7 @@ android {
     defaultConfig {
     applicationId = "com.example.digital_krishi"
     minSdkVersion(26)
-    targetSdkVersion(34)
+    targetSdkVersion(35)
     versionCode = 1
     versionName = "1.0"
 }
