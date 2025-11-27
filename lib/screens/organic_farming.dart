@@ -1,4 +1,183 @@
+// ignore_for_file: library_private_types_in_public_api, unnecessary_to_list_in_spreads
+
 import 'package:flutter/material.dart';
+
+// --------------------------------------------------------------------
+// 1. CONTENT MODEL (The first step towards external JSON/API)
+// --------------------------------------------------------------------
+
+class GuideItem {
+  final String title;
+  final Widget content;
+  final String? imageAssetPath;
+
+  GuideItem({required this.title, required this.content, this.imageAssetPath});
+}
+
+// --------------------------------------------------------------------
+// 2. UI COMPONENTS & COLORS
+// --------------------------------------------------------------------
+
+class EnhancedColors {
+  static const Color primaryGreen = Color.fromARGB(
+    255,
+    33,
+    150,
+    83,
+  ); // Modern Forest Green
+  static const Color backgroundColor = Color.fromARGB(
+    255,
+    246,
+    255,
+    248,
+  ); // Mint Off-White
+  static const Color neutralTextDark = Color.fromARGB(
+    255,
+    29,
+    53,
+    35,
+  ); // Dark Text
+  static const Color accentLight = Color.fromARGB(
+    255,
+    178,
+    223,
+    191,
+  ); // Light Accent for Dividers
+  static const Color cardColor = Color.fromARGB(255, 255, 255, 255);
+}
+
+// Placeholder for a loading state widget
+class ShimmerGuideList extends StatelessWidget {
+  const ShimmerGuideList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: ModalRoute.of(context)!.animation!,
+          curve: Curves.easeIn,
+        ),
+      ),
+      child: Center(
+        child: CircularProgressIndicator(color: EnhancedColors.primaryGreen),
+      ),
+    );
+  }
+}
+
+// Custom Card Style Implementation (ExpansionTile pattern)
+class GuideCard extends StatelessWidget {
+  final GuideItem item;
+
+  const GuideCard({super.key, required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 4, // More pronounced shadow
+      margin: const EdgeInsets.only(bottom: 15),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ), // Rounded corners
+      color: EnhancedColors.cardColor,
+      child: ExpansionTile(
+        tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        title: Text(
+          item.title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w800,
+            fontSize: 17,
+            color: EnhancedColors.neutralTextDark,
+          ),
+        ),
+        iconColor: EnhancedColors.primaryGreen,
+        collapsedIconColor: EnhancedColors.neutralTextDark,
+        children: <Widget>[
+          Divider(height: 1, thickness: 1, color: EnhancedColors.accentLight),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- Image/Diagram Placeholder ---
+                  if (item.imageAssetPath != null) ...[
+                    Image.asset(
+                      item.imageAssetPath!,
+                      // You can add properties like fit, height, width for better control
+                      fit: BoxFit.cover,
+                      height: 150, // Or adjust as needed
+                    ),
+                    // Container(
+                    //   height: 150,
+                    //   color: EnhancedColors.accentLight.withOpacity(0.5),
+                    //   alignment: Alignment.center,
+                    //   child: Text(
+                    //     'Diagram Placeholder: ${item.imageAssetPath!.split('/').last}',
+                    //     style: TextStyle(
+                    //       fontStyle: FontStyle.italic,
+                    //       color: EnhancedColors.neutralTextDark,
+                    //     ),
+                    //   ),
+                    // ),
+                    const SizedBox(height: 15),
+                  ],
+                  // --- Content ---
+                  item.content,
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Helper function to build bulleted list items
+Widget _buildBulletPoint(String text) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 10.0, bottom: 6.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const Text(
+          '• ',
+          style: TextStyle(fontSize: 15, color: EnhancedColors.neutralTextDark),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 15,
+              color: EnhancedColors.neutralTextDark,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// Helper function to build a paragraph
+Widget _buildParagraph(String text) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 10.0),
+    child: Text(
+      text,
+      style: const TextStyle(
+        fontSize: 15,
+        color: EnhancedColors.neutralTextDark,
+      ),
+    ),
+  );
+}
+
+// --------------------------------------------------------------------
+// 3. MAIN SCREEN IMPLEMENTATION
+// --------------------------------------------------------------------
 
 class OrganicFarmingGuideScreen extends StatefulWidget {
   const OrganicFarmingGuideScreen({super.key});
@@ -9,93 +188,40 @@ class OrganicFarmingGuideScreen extends StatefulWidget {
 }
 
 class _OrganicFarmingGuideScreenState extends State<OrganicFarmingGuideScreen> {
-  // Define the custom colors (same as Drip Irrigation for consistency)
-  static const Color primaryGreen = Color.fromARGB(
-    255,
-    5,
-    150,
-    105,
-  ); // Emerald Green
-  static const Color backgroundColor = Color.fromARGB(
-    255,
-    240,
-    253,
-    244,
-  ); // Light Green/White background
-  static const Color neutralTextDark = Color.fromARGB(
-    255,
-    40,
-    40,
-    40,
-  ); // Dark text for high contrast
-
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Simulate a network delay
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         _isLoading = false;
       });
     });
   }
 
-  // Helper function to build bulleted list items
-  Widget _buildBulletPoint(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0, bottom: 6.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          const Text(
-            '• ',
-            style: TextStyle(fontSize: 15, color: neutralTextDark),
-          ),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontSize: 15, color: neutralTextDark),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper function to build a paragraph (simulating original string content)
-  Widget _buildParagraph(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10.0),
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 15, color: neutralTextDark),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: EnhancedColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Organic Farming Guide'),
+        title: const Text('🌿 Organic Farming Guide'),
         titleTextStyle: const TextStyle(
-          color: Color.fromARGB(255, 255, 255, 255), // White title
-          fontSize: 20,
+          color: Colors.white,
+          fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // White back icon
-        ),
-        backgroundColor: primaryGreen,
-        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: EnhancedColors.primaryGreen,
+        elevation: 1,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(18.0),
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 700),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
           child: _isLoading ? const ShimmerGuideList() : _buildGuideContent(),
         ),
       ),
@@ -103,248 +229,208 @@ class _OrganicFarmingGuideScreenState extends State<OrganicFarmingGuideScreen> {
   }
 
   Widget _buildGuideContent() {
+    final List<GuideItem> guideItems = [
+      GuideItem(
+        title: '🌿 Core Principles of Organic Farming',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'Organic farming is a sustainable agricultural system that sustains the health of soils, ecosystems, and people. It relies on ecological processes, biodiversity, and cycles adapted to local conditions.',
+            ),
+            _buildParagraph(
+              'It strictly prohibits the use of external inputs like synthetic fertilizers and chemical pesticides, focusing instead on **natural solutions**.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🌱 Soil Health: The Foundation',
+        imageAssetPath:
+            'assets/icons/fertilizer.png', // Placeholder image for context
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildParagraph(
+              'The core principle is to feed the soil, not the plant. Key practices for building healthy soil include:',
+            ),
+            _buildBulletPoint(
+              'Manure & Compost: Using aged animal manure and decomposed plant matter to build organic carbon.',
+            ),
+            _buildBulletPoint(
+              'Cover Crops: Planting non-cash crops (e.g., legumes) to prevent erosion, suppress weeds, and **fix nitrogen**.',
+            ),
+            _buildBulletPoint(
+              'Minimal Tillage: Reducing plowing frequency to protect soil structure, beneficial fungi, and microbial life.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🔄 Crop Rotation and Diversity',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'Crop Rotation (never planting the same crop in the same field year after year) breaks pest and disease cycles and optimizes nutrient use.',
+            ),
+            _buildParagraph(
+              'Diversity, such as intercropping (planting two or more crops together), improves ecosystem resilience and naturally boosts yields and pest resistance.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🌾 Seed Selection: Heirlooms and Non-GMO',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'Organic farming relies exclusively on seeds that are not genetically modified (Non-GMO) and, ideally, organically grown.',
+            ),
+            _buildBulletPoint(
+              'Heirloom Varieties: Often chosen for regional adaptation, disease resistance, and unique flavors.',
+            ),
+            _buildBulletPoint(
+              'Open-Pollinated Seeds: Ensures farmers can save seeds year after year, building locally adapted genetics and reducing input costs.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '♻️ Building On-Farm Fertility Resources',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'The goal is to close the nutrient loop, minimizing the need for external inputs.',
+            ),
+            _buildBulletPoint(
+              'Animal Integration: Using livestock manure as fertilizer, often rotated through fields.',
+            ),
+            _buildBulletPoint(
+              '**Biochar: Using pyrolyzed organic material (charcoal) to permanently sequester carbon and increase soil water and nutrient holding capacity.',
+            ),
+            _buildBulletPoint(
+              'Local Sourcing: If external inputs are needed, prioritizing locally sourced, approved organic materials.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '📈 Economic and Market Benefits',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'While yields might initially be lower, organic farming often results in higher profitability due to:',
+            ),
+            _buildBulletPoint(
+              'Premium Pricing: Organic products often command higher prices in the market.',
+            ),
+            _buildBulletPoint(
+              '**Reduced Input Costs: Eliminating expensive synthetic fertilizers and pesticides reduces operational expenses.',
+            ),
+            _buildBulletPoint(
+              'Market Stability: Growing consumer demand ensures a stable and expanding market for organic produce.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '💧 Water Conservation and Management',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'Organic systems naturally conserve water due to high soil organic matter, but specific techniques are key:',
+            ),
+            _buildBulletPoint(
+              'Mulching: Thick layers of organic material reduce evaporation and stabilize soil temperature.',
+            ),
+            _buildBulletPoint(
+              'Keyline Design: Using strategic plowing or earthworks to slow down water runoff and encourage infiltration.',
+            ),
+            _buildBulletPoint(
+              'Dry Farming: Techniques used in semi-arid areas that rely solely on stored soil moisture, typically requiring specific crop selection.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🐞 Natural Pest & Disease Control',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'Organic pest management relies on biological controls and cultural practices:',
+            ),
+            _buildBulletPoint(
+              'Biological Control: Introducing or attracting beneficial insects (like ladybugs or parasitic wasps) that prey on pests.',
+            ),
+            _buildBulletPoint(
+              'Cultural Control: Timely planting, using pest-resistant varieties, and ensuring optimal plant spacing.',
+            ),
+            _buildBulletPoint(
+              'Approved Sprays: Using natural substances like **Neem oil** or **Bacillus thuringiensis (Bt)** as a targeted, last resort.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🧪 Natural Nutrient Sources (Fertilizer)',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'Since synthetic fertilizers are prohibited, organic nutrients come from:',
+            ),
+            _buildBulletPoint(
+              'Green Manures: Crops grown specifically to be incorporated back into the soil, adding biomass and nutrients.',
+            ),
+            _buildBulletPoint(
+              'Compost Tea: Liquid fertilizer made by steeping compost, beneficial for immediate nutrient delivery and microbial activity.',
+            ),
+            _buildBulletPoint(
+              'Mineral Powders: Naturally mined minerals like rock phosphate or gypsum to address specific soil deficiencies.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '📜 The Certification Process',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildParagraph(
+              'To market products as "organic," farms must be certified by a recognized body. This involves a rigorous, multi-step process:',
+            ),
+            _buildBulletPoint(
+              '**Transition Period: Typically 3 years where no prohibited substances are used on the land before certification can be granted.',
+            ),
+            _buildBulletPoint(
+              '**Annual Inspection: Mandatory yearly visits by a third-party certifier to verify compliance.',
+            ),
+            _buildBulletPoint(
+              'Record-Keeping: Meticulous documentation of all inputs, seeds, harvests, and sales is required to ensure traceability.',
+            ),
+          ],
+        ),
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'A comprehensive guide to growing healthy crops naturally, focusing on soil life and ecological balance.',
-          style: TextStyle(fontSize: 16, color: neutralTextDark),
+          style: TextStyle(fontSize: 16, color: EnhancedColors.neutralTextDark),
           textAlign: TextAlign.start,
         ),
         const SizedBox(height: 20),
-
-        // 1. Core Principles
-        GuideCard(
-          title: '🌿 Core Principles of Organic Farming',
-          // Content is now a Widget (Column)
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'Organic farming is a sustainable agricultural system that sustains the health of soils, ecosystems, and people. It relies on ecological processes, biodiversity, and cycles adapted to local conditions.',
-              ),
-              _buildParagraph(
-                'It strictly prohibits the use of external inputs like synthetic fertilizers and chemical pesticides, focusing instead on natural solutions.',
-              ),
-            ],
-          ),
-        ),
-
-        // 2. Soil Health (The Foundation)
-        GuideCard(
-          title: '🌱 Soil Health: The Foundation',
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'The core principle is to feed the soil, not the plant. Key practices for building healthy soil include:',
-              ),
-              _buildBulletPoint(
-                '* Manure & Compost: Using aged animal manure and decomposed plant matter to build organic carbon.',
-              ),
-              _buildBulletPoint(
-                '* Cover Crops: Planting non-cash crops (e.g., legumes, grasses) to prevent erosion, suppress weeds, and fix nitrogen.',
-              ),
-              _buildBulletPoint(
-                '* Minimal Tillage: Reducing plowing frequency to protect soil structure, beneficial fungi, and microbial life.',
-              ),
-            ],
-          ),
-        ),
-
-        // 3. Crop Rotation & Diversity
-        GuideCard(
-          title: '🔄 Crop Rotation and Diversity',
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'Rotating crops (never planting the same crop in the same field year after year) is essential. It breaks pest and disease cycles and optimizes nutrient use by following heavy feeders with nitrogen fixers.',
-              ),
-              _buildParagraph(
-                '* Diversity, such as intercropping (planting two or more crops together), improves ecosystem resilience and naturally boosts yields and pest resistance.',
-              ),
-            ],
-          ),
-        ),
-
-        // 4. Natural Pest & Disease Management
-        GuideCard(
-          title: '🐞 Natural Pest & Disease Control',
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'Organic pest management relies on biological controls and cultural practices:',
-              ),
-              _buildBulletPoint(
-                '* Biological Control: Introducing or attracting beneficial insects (like ladybugs or parasitic wasps) that prey on pests.',
-              ),
-              _buildBulletPoint(
-                '* Cultural Control: Timely planting, using pest-resistant varieties, and ensuring optimal plant spacing for good air circulation.',
-              ),
-              _buildBulletPoint(
-                '* Approved Sprays: Using natural substances like **Neem oil** or **Bacillus thuringiensis (Bt)** as a targeted, last resort.',
-              ),
-            ],
-          ),
-        ),
-
-        // 5. Natural Nutrient Sources (Fertilizer)
-        GuideCard(
-          title: '🧪 Natural Nutrient Sources (Fertilizer)',
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'Since synthetic fertilizers are prohibited, organic nutrients come from:',
-              ),
-              _buildBulletPoint(
-                '* Green Manures: Crops grown specifically to be incorporated back into the soil, adding biomass and nutrients.',
-              ),
-              _buildBulletPoint(
-                '* Compost Tea: Liquid fertilizer made by steeping compost, beneficial for immediate nutrient delivery and microbial activity.',
-              ),
-              _buildBulletPoint(
-                '* Mineral Powders: Naturally mined minerals like rock phosphate or gypsum to address specific soil deficiencies without chemical processing.',
-              ),
-            ],
-          ),
-        ),
-
-        // 6. Weed Management
-        GuideCard(
-          title: '🌾 Weed Management Methods',
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'Controlling weeds without chemical herbicides requires a proactive approach:',
-              ),
-              _buildBulletPoint(
-                '* Mulching: Applying thick layers of organic material (straw, wood chips) to block sunlight and suppress weed growth.',
-              ),
-              _buildBulletPoint(
-                '* Mechanical Cultivation: Using machinery (rotary hoes) or hand tools to physically cut or uproot weeds.',
-              ),
-              _buildBulletPoint(
-                '* Solarization/Occultation: Using plastic sheets to heat the soil or block light, killing weeds before planting.',
-              ),
-            ],
-          ),
-        ),
-
-        // 7. Organic Certification
-        GuideCard(
-          title: '📜 The Certification Process',
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'To market products as "organic," farms must be certified by a recognized body. This involves a rigorous, multi-step process.',
-              ),
-              _buildBulletPoint(
-                '* Transition Period: Typically 3 years where no prohibited substances are used on the land before certification can be granted.',
-              ),
-              _buildBulletPoint(
-                '* Annual Inspection: Mandatory yearly visits by a third-party certifier to verify compliance.',
-              ),
-              _buildBulletPoint(
-                '* Record-Keeping: Meticulous documentation of all inputs, seeds, harvests, and sales is required to ensure traceability.',
-              ),
-            ],
-          ),
-        ),
-
-        // 8. Economic Benefits
-        GuideCard(
-          title: '💰 Economic Benefits of Organic Farming',
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildParagraph(
-                'While yields might initially be lower, organic farming often results in higher profitability due to:',
-              ),
-              _buildBulletPoint(
-                '* Premium Pricing: Organic products often command higher prices in the market.',
-              ),
-              _buildBulletPoint(
-                '* Reduced Input Costs: Eliminating expensive synthetic fertilizers and pesticides reduces operational expenses.',
-              ),
-              _buildBulletPoint(
-                '* Market Stability: Growing consumer demand ensures a stable and expanding market for organic produce.',
-              ),
-            ],
-          ),
-        ),
-
+        ...guideItems.map((item) => GuideCard(item: item)).toList(),
         const SizedBox(height: 20),
       ],
-    );
-  }
-}
-
-// ====================================================================
-// UI PLACEHOLDERS (Must be outside the State class to be public/static)
-// ====================================================================
-
-// Placeholder for a loading state widget
-class ShimmerGuideList extends StatelessWidget {
-  const ShimmerGuideList({super.key});
-  @override
-  Widget build(BuildContext context) {
-    // Reference the state class for colors
-    return const Center(
-      child: CircularProgressIndicator(
-        color: _OrganicFarmingGuideScreenState.primaryGreen,
-      ),
-    );
-  }
-}
-
-// Custom Card Style Implementation (ExpansionTile pattern)
-class GuideCard extends StatelessWidget {
-  final String title;
-
-  final Widget content;
-
-  const GuideCard({super.key, required this.title, required this.content});
-
-  @override
-  Widget build(BuildContext context) {
-    // Card color set to white/light for the clean, contrasting look
-    return Card(
-      elevation: 3, // Subtle shadow for a modern lift
-      margin: const EdgeInsets.only(bottom: 15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Colors.white,
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w700,
-            color: _OrganicFarmingGuideScreenState.neutralTextDark,
-          ),
-        ),
-        // Reference the state class for colors
-        iconColor: _OrganicFarmingGuideScreenState.primaryGreen,
-        collapsedIconColor: _OrganicFarmingGuideScreenState.neutralTextDark,
-        children: <Widget>[
-          const Divider(
-            height: 1,
-            thickness: 1,
-            color: Color.fromARGB(25, 0, 0, 0),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Align(
-              alignment: Alignment.topLeft,
-              child: content, // Now renders the complex Widget content
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

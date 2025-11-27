@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -192,26 +194,6 @@ class _FarmerProfilePageState extends State<FarmerProfilePage> {
     _farmingPracticesController.dispose();
     _subsidyController.dispose();
     super.dispose();
-  }
-
-  Widget _sectionHeader(String title, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Row(
-        children: [
-          Icon(icon, color: const Color.fromARGB(255, 5, 150, 105)),
-          const SizedBox(width: 8),
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _profileCard({

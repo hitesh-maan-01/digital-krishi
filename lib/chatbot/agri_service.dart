@@ -1,4 +1,5 @@
-// lib/chatbot/agri_service.dart
+// ignore_for_file: constant_identifier_names, unnecessary_type_check, depend_on_referenced_packages, prefer_interpolation_to_compose_strings
+
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
@@ -6,12 +7,10 @@ import 'package:http/http.dart' as http;
 
 class AgriService {
   static const String GEMINI_API_KEY =
-      "AIzaSyB5apfolj6OEuYnpXWLjkuq76ZBXwxg3AI"; // replace with your key
+      "AIzaSyDr2T0sA3xBFpboXwjdSregXHr2FRsskOU"; // replace
 
-  /// Helper: robust extractor for common Gemini response shapes.
   String _extractTextFromResponse(Map<String, dynamic> jsonBody) {
     try {
-      // shape: { candidates: [ { content: { parts: [ "text" or { "text": ... } ] } } ] }
       final candidates = jsonBody['candidates'];
       if (candidates is List && candidates.isNotEmpty) {
         final first = candidates[0];
@@ -25,20 +24,17 @@ class AgriService {
               if (part is Map && part.containsKey('text')) {
                 return part['text'].toString();
               }
-              // try other keys
               if (part is Map && part.containsKey('content')) {
                 return part['content'].toString();
               }
             }
-            // sometimes content -> text directly
-            if (content.containsKey('text')) {
+            if (content is Map && content.containsKey('text')) {
               return content['text'].toString();
             }
           }
         }
       }
 
-      // Another common shape: { output: [ { content: "..." } ] }
       if (jsonBody['output'] is List && jsonBody['output'].isNotEmpty) {
         final out0 = jsonBody['output'][0];
         if (out0 is Map && out0['content'] != null) {
@@ -46,17 +42,14 @@ class AgriService {
         }
       }
 
-      // Last resort: if top-level 'text' exists
       if (jsonBody['text'] != null) return jsonBody['text'].toString();
 
-      // fallback: empty but valid
       return "";
     } catch (_) {
       return "";
     }
   }
 
-  /// Main send function (text + optional image + context)
   Future<String> sendMessage(
     String query, {
     File? imageFile,
@@ -65,7 +58,7 @@ class AgriService {
     final endpoint =
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$GEMINI_API_KEY";
 
-    // Build small context
+    // Build context (last 3)
     String context = "";
     if (lastMessages != null && lastMessages.isNotEmpty) {
       try {
@@ -87,9 +80,8 @@ class AgriService {
       try {
         final bytes = await imageFile.readAsBytes();
         final b64 = base64Encode(bytes);
-        imagePart =
-            "\n\n[ImageBase64Prefix]: ${b64.substring(0, b64.length > 800 ? 0 : 0)}"; // keep empty if too large
-        // Note: don't paste huge base64 into prompt on mobile; server approach recommended.
+        final prefix = b64.length > 800 ? b64.substring(0, 800) : b64;
+        imagePart = "\n\n[ImageBase64Prefix]: $prefix ... (truncated)";
       } catch (_) {
         imagePart = "\n\n[Image attached but could not be read]";
       }
@@ -103,10 +95,12 @@ Instructions:
 1. Use ONLY ICAR, KAU, IMD, govt bulletins & verified agri data.
 2. Answer short (2–4 lines) in simple farmer language.
 3. Add source at end.
-4. If image attached → analyze and diagnose.
+4. If image attached → analyze and diagnose, prevention.
 5. If unsure → say "Please contact Krishi Officer."
 6. Use helpful emojis.
 7. Use previous chat context for better relevance.
+8. Response in same language in which query is send.
+9. If new query is related to previous query response based on previous query, otherwise new response.
 
 Conversation Context:
 $context
@@ -137,15 +131,10 @@ $imagePart
           )
           .timeout(const Duration(seconds: 45));
 
-      // --- debug hints (you can comment out in production)
-      // print('AGRI SERVICE status: ${response.statusCode}');
-      // print('AGRI SERVICE body: ${response.body}');
-
-      // parse body safely
       Map<String, dynamic>? jsonBody;
       try {
         jsonBody = jsonDecode(response.body) as Map<String, dynamic>?;
-      } catch (e) {
+      } catch (_) {
         jsonBody = null;
       }
 
@@ -156,7 +145,6 @@ $imagePart
         }
         return extracted;
       } else {
-        // If non-200, try to parse an error message
         if (jsonBody != null && jsonBody['error'] != null) {
           final err = jsonBody['error'];
           if (err is Map && err['message'] != null) {
@@ -164,9 +152,8 @@ $imagePart
             return "⚠️ API ERROR: $msg";
           }
         }
-        // fallback: show raw body but trimmed
         final bodyPreview = (response.body.length > 800)
-            ? "${response.body.substring(0, 800)}..."
+            ? response.body.substring(0, 800) + "..."
             : response.body;
         return "⚠️ API ERROR (status ${response.statusCode}): $bodyPreview";
       }
@@ -177,13 +164,11 @@ $imagePart
     }
   }
 
-  /// Translate helper — uses same robust parsing by calling sendMessage with a small translate prompt
   Future<String> translateText(String original, String target) async {
     final prompt =
-        "Translate the following agricultural chatbot answer into $target. Only translation:\n$original";
-    // Reuse sendMessage but NO context & no image
-    final res = await sendMessage(prompt);
-    // If the response looks like an API error, return it directly
+        "Translate the following agricultural chatbot answer into $target. Only translate, no extra text:\n$original";
+    // re-use sendMessage but with prompt as the query and no image or context
+    final res = await sendMessage(prompt, imageFile: null, lastMessages: null);
     return res;
   }
 }

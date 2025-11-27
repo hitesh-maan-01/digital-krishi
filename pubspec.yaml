@@ -24,6 +24,8 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   flutter_native_splash: ^2.4.0
   flutter_svg: ^2.0.7
+
+  flutter_local_notifications: ^19.5.0 
   http: ^1.1.0
   intl: ^0.20.2
   flutter_tts: ^4.2.3
@@ -61,7 +63,7 @@ flutter:
   assets:
     - assets/app_Splash.png
     - assets/queries/intents.json
-    - assets/log_page/plants_bg.jpg # Your original data for getting responses
+    - assets/log_page/plants_bg.jpg
 
     # crops
     - assets/crops/beans.png

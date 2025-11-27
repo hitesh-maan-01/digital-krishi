@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, deprecated_member_use, unnecessary_underscores
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/scheduler.dart';

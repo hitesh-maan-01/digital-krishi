@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_import, depend_on_referenced_packages
+
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
@@ -14,8 +16,6 @@ class PytorchModelService {
     if (_isInitialized) return;
 
     try {
-      print('📄 Loading PyTorch model...');
-
       final labelsData = await rootBundle.loadString(
         'assets/models/labels.txt',
       );
@@ -24,11 +24,7 @@ class PytorchModelService {
           .where((label) => label.trim().isNotEmpty)
           .toList();
 
-      print('✅ Loaded ${_labels!.length} labels');
-      if (_labels!.isNotEmpty) {
-        print('🏷 First label: ${_labels![0]}');
-        print('🏷 Last label: ${_labels![_labels!.length - 1]}');
-      }
+      if (_labels!.isNotEmpty) {}
 
       _model = await PytorchLite.loadClassificationModel(
         'assets/models/mobile_model.ptl',
@@ -38,9 +34,7 @@ class PytorchModelService {
       );
 
       _isInitialized = true;
-      print('✅ PyTorch model initialized successfully!');
     } catch (e) {
-      print('❌ Error initializing model: $e');
       rethrow;
     }
   }
@@ -55,19 +49,13 @@ class PytorchModelService {
     }
 
     try {
-      print('🔍 Starting prediction...');
-
       final imageBytes = await _preprocessImage(imageFile);
 
       // Use getImagePredictionList instead of getImagePrediction
       // This typically returns probabilities for all classes
       final resultList = await _model!.getImagePredictionList(imageBytes);
 
-      print('📊 Result list length: ${resultList.length ?? 0}');
-      print('📊 Expected labels: ${_labels!.length}');
-
       if (resultList.isEmpty) {
-        print('⚠ No results from model');
         return null;
       }
 
@@ -75,36 +63,25 @@ class PytorchModelService {
       List<Prediction> predictions = _parseResultList(resultList);
 
       if (predictions.isEmpty) {
-        print('⚠ No predictions generated');
         return null;
       }
 
       // Sort by confidence (descending)
       predictions.sort((a, b) => b.confidence.compareTo(a.confidence));
 
-      print('✅ Generated ${predictions.length} predictions');
-      print(
-        '🎯 Top prediction: ${predictions[0].className} (${predictions[0].confidence.toStringAsFixed(2)}%)',
-      );
-
       return PredictionResult.fromClassification(
         predictions[0].className,
         predictions[0].confidence,
         predictions.take(5).toList(),
       );
-    } catch (e, stackTrace) {
-      print('❌ Error during prediction: $e');
-      print('📍 Stack trace: $stackTrace');
-
+    } catch (e) {
       // Fallback: try the old method
       try {
-        print('🔄 Trying fallback prediction method...');
         // Re-preprocess image for fallback
         final fallbackImageBytes = await _preprocessImage(imageFile);
         final result = await _model!.getImagePrediction(fallbackImageBytes);
         return _handleFallbackPrediction(result);
       } catch (fallbackError) {
-        print('❌ Fallback also failed: $fallbackError');
         return null;
       }
     }
@@ -114,12 +91,8 @@ class PytorchModelService {
     try {
       List<Prediction> predictions = [];
 
-      print('🔍 Parsing result list...');
-
       // Handle the case where resultList contains probability scores for each class
       if (resultList.length == _labels!.length) {
-        print('✅ Result list matches number of labels');
-
         for (int i = 0; i < resultList.length; i++) {
           double confidence = 0.0;
 
@@ -148,20 +121,10 @@ class PytorchModelService {
           );
         }
 
-        print('✅ Parsed ${predictions.length} predictions');
-
         // Show top 3 for debugging
         predictions.sort((a, b) => b.confidence.compareTo(a.confidence));
-        for (int i = 0; i < 3 && i < predictions.length; i++) {
-          print(
-            '   ${i + 1}. ${predictions[i].className}: ${predictions[i].confidence.toStringAsFixed(2)}%',
-          );
-        }
+        for (int i = 0; i < 3 && i < predictions.length; i++) {}
       } else {
-        print(
-          '⚠ Result list length (${resultList.length}) does not match labels (${_labels!.length})',
-        );
-
         // Try to handle as [index, confidence] pairs or other formats
         if (resultList.length == 2) {
           final index = _parseIndex(resultList[0]);
@@ -181,16 +144,12 @@ class PytorchModelService {
 
       return predictions;
     } catch (e) {
-      print('❌ Error parsing result list: $e');
       return [];
     }
   }
 
   Future<PredictionResult?> _handleFallbackPrediction(dynamic result) async {
     try {
-      print('📊 Fallback result: $result');
-      print('📊 Fallback result type: ${result.runtimeType}');
-
       List<Prediction> predictions = [];
 
       if (result is String) {
@@ -215,7 +174,6 @@ class PytorchModelService {
         predictions.take(5).toList(),
       );
     } catch (e) {
-      print('❌ Fallback prediction error: $e');
       return null;
     }
   }
@@ -252,11 +210,7 @@ class PytorchModelService {
     try {
       final index = _parseIndex(result);
 
-      print('🔢 Predicted index: $index');
-      print('📚 Total labels available: ${_labels!.length}');
-
       if (index < 0 || index >= _labels!.length) {
-        print('⚠ Index $index out of range [0, ${_labels!.length - 1}]');
         return [];
       }
 
@@ -283,7 +237,6 @@ class PytorchModelService {
 
       return predictions;
     } catch (e) {
-      print('❌ Error parsing numeric result: $e');
       return [];
     }
   }
@@ -292,8 +245,6 @@ class PytorchModelService {
     try {
       List<Prediction> predictions = [];
       final parts = result.trim().split(' ');
-
-      print('🔍 String parts: $parts');
 
       if (parts.isEmpty) return [];
 
@@ -346,7 +297,6 @@ class PytorchModelService {
 
       return predictions;
     } catch (e) {
-      print('❌ Error parsing string result: $e');
       return [];
     }
   }
@@ -355,15 +305,12 @@ class PytorchModelService {
     try {
       List<Prediction> predictions = [];
 
-      print('🗺 Map contents: $result');
-
       final className = (result['label'] ?? result['class'] ?? '').toString();
       final confidence = _parseConfidence(
         result['confidence'] ?? result['score'] ?? 0.0,
       );
 
       if (className.isEmpty) {
-        print('⚠ No class name found in map');
         return [];
       }
 
@@ -379,23 +326,18 @@ class PytorchModelService {
 
       return predictions;
     } catch (e) {
-      print('❌ Error parsing map result: $e');
       return [];
     }
   }
 
   Future<Uint8List> _preprocessImage(File imageFile) async {
     try {
-      print('🖼 Preprocessing image...');
-
       final originalBytes = await imageFile.readAsBytes();
       final image = img.decodeImage(originalBytes);
 
       if (image == null) {
         throw Exception('Failed to decode image');
       }
-
-      print('Original size: ${image.width}x${image.height}');
 
       // Resize to 256x256
       final resized = img.copyResize(
@@ -405,18 +347,13 @@ class PytorchModelService {
         interpolation: img.Interpolation.linear,
       );
 
-      print('Resized to: ${resized.width}x${resized.height}');
-
       // Encode to JPEG bytes
       final processedBytes = Uint8List.fromList(
         img.encodeJpg(resized, quality: 95),
       );
 
-      print('✅ Image preprocessed: ${processedBytes.length} bytes');
-
       return processedBytes;
     } catch (e) {
-      print('❌ Error preprocessing image: $e');
       rethrow;
     }
   }
@@ -424,6 +361,5 @@ class PytorchModelService {
   void dispose() {
     _model = null;
     _isInitialized = false;
-    print('🗑 Model service disposed');
   }
 }

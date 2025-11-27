@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'market_price_model.dart';

@@ -1,3 +1,6 @@
+// ignore_for_file: depend_on_referenced_packages
+
+import '../notification/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,7 +13,8 @@ import 'screens/profile_page.dart';
 import 'community/community_list_page.dart';
 import 'Authentication/onboarding_page.dart';
 
-import 'package:firebase_core/firebase_core.dart'; // ADDED
+import 'package:firebase_core/firebase_core.dart';
+//import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // ADDED
 
 Future<void> main() async {
   // Ensure Flutter binding is initialized
@@ -32,6 +36,10 @@ Future<void> main() async {
 
   // Open Hive box for storing market prices
   await Hive.openBox('marketPrices');
+
+  //notification
+  WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.init();
 
   runApp(const DigitalKrishiApp());
 }

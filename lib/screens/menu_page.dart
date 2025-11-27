@@ -1,4 +1,3 @@
-// menu_page.dart
 import 'package:digital_krishi/Authentication/onboarding_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'; // <-- ADD THIS IMPORT

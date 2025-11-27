@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'post_like_button.dart';
@@ -25,7 +27,6 @@ class _PostDetailPageState extends State<PostDetailPage>
   // Seasonal animation controllers
   late AnimationController _seasonController;
   late AnimationController _petalController;
-  late Animation<double> _seasonAnimation;
 
   // Seasonal colors and data
   final List<SeasonTheme> _seasons = [
@@ -168,10 +169,6 @@ class _PostDetailPageState extends State<PostDetailPage>
       duration: const Duration(milliseconds: 100),
       vsync: this,
     )..repeat();
-
-    _seasonAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _seasonController, curve: Curves.easeInOut),
-    );
 
     _initializePetals();
 

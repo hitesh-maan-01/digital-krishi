@@ -1,13 +1,65 @@
+// ignore_for_file: library_private_types_in_public_api, unnecessary_to_list_in_spreads
+
 import 'package:flutter/material.dart';
 
-// Placeholder for a loading state widget
+// --------------------------------------------------------------------
+// 1. CONTENT MODEL (The first step towards external JSON/API)
+// --------------------------------------------------------------------
+
+class GuideItem {
+  final String title;
+  final Widget content;
+  final String? imageAssetPath; // Placeholder for image/diagram
+
+  GuideItem({required this.title, required this.content, this.imageAssetPath});
+}
+
+// --------------------------------------------------------------------
+// 2. UI COMPONENTS & COLORS
+// --------------------------------------------------------------------
+
+class EnhancedColors {
+  static const Color primaryGreen = Color.fromARGB(
+    255,
+    33,
+    150,
+    83,
+  ); // Modern Forest Green
+  static const Color backgroundColor = Color.fromARGB(
+    255,
+    246,
+    255,
+    248,
+  ); // Mint Off-White
+  static const Color neutralTextDark = Color.fromARGB(
+    255,
+    29,
+    53,
+    35,
+  ); // Dark Text
+  static const Color accentLight = Color.fromARGB(
+    255,
+    178,
+    223,
+    191,
+  ); // Light Accent for Dividers
+}
+
+// Placeholder for a loading state widget - Using a simple Fade Transition for smooth appearance
 class ShimmerGuideList extends StatelessWidget {
   const ShimmerGuideList({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: CircularProgressIndicator(
-        color: _DripIrrigationScreenState.primaryGreen,
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(
+          parent: ModalRoute.of(context)!.animation!,
+          curve: Curves.easeIn,
+        ),
+      ),
+      child: Center(
+        child: CircularProgressIndicator(color: EnhancedColors.primaryGreen),
       ),
     );
   }
@@ -15,50 +67,63 @@ class ShimmerGuideList extends StatelessWidget {
 
 // Custom Card Style Implementation (ExpansionTile pattern)
 class GuideCard extends StatelessWidget {
-  final String title;
-  // NOTE: Changed back to String content to adhere to the pattern of the provided 'drip_irrigation.dart' content structure.
-  final String content;
+  final GuideItem item;
 
-  const GuideCard({super.key, required this.title, required this.content});
+  const GuideCard({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
-    // Card color set to white/light for the clean, contrasting look
     return Card(
-      elevation: 3, // Subtle shadow for a modern lift
+      elevation: 4, // More pronounced shadow
       margin: const EdgeInsets.only(bottom: 15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      color: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ), // Rounded corners
+      color: EnhancedColors.accentLight,
       child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        // Style the title to match the dark text in the screenshot
+        tilePadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         title: Text(
-          title,
+          item.title,
           style: const TextStyle(
-            fontWeight: FontWeight.w700,
-            color: _DripIrrigationScreenState.neutralTextDark,
+            fontWeight: FontWeight.w800, // Bolder title
+            fontSize: 17,
+            color: EnhancedColors.neutralTextDark,
           ),
         ),
-        iconColor: _DripIrrigationScreenState
-            .primaryGreen, // Use primary green for the arrow icon
-        collapsedIconColor: _DripIrrigationScreenState.neutralTextDark,
+        iconColor: EnhancedColors.primaryGreen,
+        collapsedIconColor: EnhancedColors.neutralTextDark,
         children: <Widget>[
-          const Divider(
+          Divider(
             height: 1,
             thickness: 1,
-            color: Color.fromARGB(25, 0, 0, 0),
+            color: const Color.fromARGB(
+              255,
+              241,
+              241,
+              241,
+            ), // Lighter, green-tinted divider
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Align(
               alignment: Alignment.topLeft,
-              child: Text(
-                content,
-                // Use the defined neutral text color for better readability
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: _DripIrrigationScreenState.neutralTextDark,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // --- Image/Diagram Placeholder (for enhancing instructional value) ---
+                  if (item.imageAssetPath != null) ...[
+                    Image.asset(
+                      item.imageAssetPath!,
+                      // You can add properties like fit, height, width for better control
+                      fit: BoxFit.cover,
+                      height: 150, // Or adjust as needed
+                    ),
+
+                    const SizedBox(height: 15),
+                  ],
+                  // --- Content ---
+                  item.content,
+                ],
               ),
             ),
           ),
@@ -68,9 +133,34 @@ class GuideCard extends StatelessWidget {
   }
 }
 
-// ====================================================================
-// MAIN SCREEN IMPLEMENTATION
-// ====================================================================
+// Helper function to build bulleted list items (needed for complex content)
+Widget _buildBulletPoint(String text) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 10.0, bottom: 6.0),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const Text(
+          '• ',
+          style: TextStyle(fontSize: 15, color: EnhancedColors.neutralTextDark),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 15,
+              color: EnhancedColors.neutralTextDark,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+// --------------------------------------------------------------------
+// 3. MAIN SCREEN IMPLEMENTATION
+// --------------------------------------------------------------------
 
 class DripIrrigationScreen extends StatefulWidget {
   const DripIrrigationScreen({super.key});
@@ -80,33 +170,13 @@ class DripIrrigationScreen extends StatefulWidget {
 }
 
 class _DripIrrigationScreenState extends State<DripIrrigationScreen> {
-  // Define the custom colors based on the ARGB values
-  static const Color primaryGreen = Color.fromARGB(
-    255,
-    5,
-    150,
-    105,
-  ); // Emerald Green
-  static const Color backgroundColor = Color.fromARGB(
-    255,
-    240,
-    253,
-    244,
-  ); // Light Green/White background
-  static const Color neutralTextDark = Color.fromARGB(
-    255,
-    40,
-    40,
-    40,
-  ); // Dark text for high contrast
-
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Simulate a network delay
-    Future.delayed(const Duration(seconds: 2), () {
+    // Simulate a network delay with an elegant transition
+    Future.delayed(const Duration(seconds: 1), () {
       setState(() {
         _isLoading = false;
       });
@@ -116,29 +186,28 @@ class _DripIrrigationScreenState extends State<DripIrrigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: EnhancedColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Drip Irrigation Guide'),
+        title: const Text('💧 Drip Irrigation Guide'),
         titleTextStyle: const TextStyle(
-          color: Color.fromARGB(
-            255,
-            255,
-            255,
-            255,
-          ), // White back icon and title
-          fontSize: 20,
+          color: Colors.white,
+          fontSize: 22,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Explicitly ensure back icon is white
-        ),
-        backgroundColor: primaryGreen,
-        elevation: 0, // Modern flat AppBar look
+        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: EnhancedColors.primaryGreen,
+        elevation: 1, // Slight elevation on AppBar
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(18.0), // Increased padding
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
+          duration: const Duration(
+            milliseconds: 700,
+          ), // Smoother animation duration
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            // Use a combination of scale and fade for the content switch
+            return FadeTransition(opacity: animation, child: child);
+          },
           child: _isLoading ? const ShimmerGuideList() : _buildGuideContent(),
         ),
       ),
@@ -146,110 +215,211 @@ class _DripIrrigationScreenState extends State<DripIrrigationScreen> {
   }
 
   Widget _buildGuideContent() {
-    // NOTE: Content strings from the original code are maintained, and new advanced feature cards are added.
+    // Content is now generated from a list of GuideItem models
+    final List<GuideItem> guideItems = [
+      GuideItem(
+        title: '💧 Key Benefits of Drip Irrigation',
+        content: Text(
+          'Drip irrigation delivers water directly to the plant roots, minimizing evaporation and runoff. This results in water savings of up to **50%**, reduced weed growth (as the surrounding soil stays dry), and healthier plants due to consistent moisture supply.',
+          style: const TextStyle(
+            fontSize: 15,
+            color: EnhancedColors.neutralTextDark,
+          ),
+        ),
+      ),
+      GuideItem(
+        title: '⚙️ Filtration System Types',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint(
+              'Screen Filters: Best for well water or municipal sources with mainly sand/sediment.',
+            ),
+            _buildBulletPoint(
+              'Disc Filters: Excellent for surface water containing organic matter, like algae or debris.',
+            ),
+            _buildBulletPoint(
+              'Media Filters (Sand): The highest level of filtration, necessary for highly contaminated water sources.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🤖 Advanced and Automated Systems',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint(
+              'For larger farms, consider systems with automated timers and moisture sensors (IoT).',
+            ),
+            _buildBulletPoint(
+              '**Automated Timers: Ensures precise, repeatable watering cycles based on time of day.',
+            ),
+            _buildBulletPoint(
+              'Moisture Sensors: These devices measure soil water content and automatically trigger irrigation only when needed, maximizing efficiency.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🛠️ Essential System Components',
+        imageAssetPath: 'assets/icons/irrigation.png', // Placeholder image
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _buildBulletPoint(
+              'Water Source & Mainline: The starting point that feeds the entire system.',
+            ),
+            _buildBulletPoint(
+              'Filter & Pressure Regulator: Crucial for preventing clogs and maintaining uniform water flow.',
+            ),
+            _buildBulletPoint(
+              'Mainline Tubing & Emitters: The delivery network that brings water directly to each plant.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🌍 Drip in Hydroponics & Vertical Farming',
+        content: Text(
+          'Drip irrigation is the most common method used in closed-loop hydroponic systems. It allows for the precise delivery of nutrient-rich water to the base of each plant, minimizing water usage and maximizing nutrient uptake in high-density, vertical environments.',
+          style: const TextStyle(
+            fontSize: 15,
+            color: EnhancedColors.neutralTextDark,
+          ),
+        ),
+      ),
+      GuideItem(
+        title: '🥶 Winterization and Storage',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint(
+              'In regions with freezing temperatures, improper winterization can destroy your system.',
+            ),
+            _buildBulletPoint(
+              'Flush: Thoroughly flush all lines and sub-mains to remove all standing water and sediment.',
+            ),
+            _buildBulletPoint(
+              'Drain: Disconnect the entire system from the water source and drain all components, including filters and pressure regulators.',
+            ),
+            _buildBulletPoint(
+              'Storage: Store control valves, filters, and other sensitive components indoors to prevent damage.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🌱 Simple DIY Setup Guide',
+        content: Text(
+          '1. Lay the Mainline: Connect the mainline tubing to your water source. 2. Install Emitters: Punch holes and insert emitters near each plant. 3. Secure the Tubing: Use stakes to keep the tubing in place. This simple process allows any farmer to implement a small-scale system easily.',
+          style: const TextStyle(
+            fontSize: 15,
+            color: EnhancedColors.neutralTextDark,
+          ),
+        ),
+      ),
+      GuideItem(
+        title: '📅 Crop-Specific Scheduling (Advanced)',
+        content: Text(
+          'Irrigation needs vary significantly by crop type, soil structure, and the plant\'s growth stage. Scheduling must be tailored to these factors. Flowering and fruiting stages require the most consistent water volume to prevent yield loss.',
+          style: const TextStyle(
+            fontSize: 15,
+            color: EnhancedColors.neutralTextDark,
+          ),
+        ),
+      ),
+      GuideItem(
+        title: '💧 Water Requirement Calculation (ET/Kc)',
+        content: Text.rich(
+          TextSpan(
+            style: const TextStyle(
+              fontSize: 15,
+              color: EnhancedColors.neutralTextDark,
+            ),
+            children: <TextSpan>[
+              const TextSpan(
+                text:
+                    'The most accurate scheduling uses the Evapotranspiration (ET) method:\n',
+              ),
+              TextSpan(
+                text:
+                    'Crop Water Use = Reference ET (ETo) x Crop Coefficient (Kc).',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const TextSpan(
+                text:
+                    ' ETo is water lost from a reference surface, and Kc is a factor specific to your crop and its growth stage. This provides the **precise daily water volume** needed.',
+              ),
+            ],
+          ),
+        ),
+      ),
+      GuideItem(
+        title: '🔍 Maintenance & Troubleshooting',
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint('Clean filters weekly to prevent blockages.'),
+            _buildBulletPoint(
+              'Flush the lines periodically to remove sediment.',
+            ),
+            _buildBulletPoint(
+              'In case of clogs, use a small wire to clear the emitter. Simple checks prevent major issues.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🎯 Types of Drip Emitters',
+        imageAssetPath: 'assets/emitter_types.png', // Placeholder image
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildBulletPoint(
+              'Pressure-Compensating: Maintains uniform flow regardless of elevation, ideal for sloped terrain.',
+            ),
+            _buildBulletPoint(
+              '**Adjustable Emitters: Allows you to manually change the flow rate for different plants.',
+            ),
+            _buildBulletPoint(
+              'Non-Pressure Compensating: Best for flat land where uniform pressure is maintained.',
+            ),
+          ],
+        ),
+      ),
+      GuideItem(
+        title: '🧪 Fertilization with Drip (Fertigation)',
+        content: Text(
+          'Fertigation involves injecting liquid fertilizers directly into the drip lines. This method is highly efficient, as **nutrients are delivered precisely to the root zone**, reducing waste and nutrient runoff while improving plant uptake.',
+          style: const TextStyle(
+            fontSize: 15,
+            color: EnhancedColors.neutralTextDark,
+          ),
+        ),
+      ),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
           'Master the most efficient way to irrigate your crops, save water, and boost your yields.',
-          style: TextStyle(fontSize: 16, color: neutralTextDark),
-          textAlign:
-              TextAlign.start, // Align text to start for better readability
+          style: TextStyle(fontSize: 16, color: EnhancedColors.neutralTextDark),
+          textAlign: TextAlign.start,
         ),
         const SizedBox(height: 20),
-
-        // --- 💧 Key Benefits ---
-        GuideCard(
-          title: '💧 Key Benefits of Drip Irrigation',
-          content:
-              'Drip irrigation delivers water directly to the plant roots, minimizing evaporation and runoff. This results in water savings of up to 50%, reduced weed growth (as the surrounding soil stays dry), and healthier plants due to consistent moisture supply.',
-        ),
-
-        // --- 🛠️ Essential System Components ---
-        GuideCard(
-          title: '🛠️ Essential System Components',
-          content:
-              'A basic drip system includes a water source(tap or tank), a filter to prevent clogs, a pressure regulator to control flow, mainline tubing, and emitters or drippers that deliver water to each plant. Understanding these components is the first step to a successful setup.',
-        ),
-
-        // --- 🌱 Simple DIY Setup Guide ---
-        GuideCard(
-          title: '🌱 Simple DIY Setup Guide',
-          content:
-              '**1. Lay the Mainline:** Connect the mainline tubing to your water source. **2. Install Emitters:** Punch holes and insert emitters near each plant. **3. Secure the Tubing:** Use stakes to keep the tubing in place. This simple process allows any farmer to implement a small-scale system easily.',
-        ),
-
-        // --- 📅 Crop-Specific Scheduling (NEW ADVANCED FEATURE) ---
-        GuideCard(
-          title: '📅 Crop-Specific Scheduling',
-          content:
-              'Irrigation needs vary significantly by crop type, soil structure (clay vs. sandy), and the plant\'s growth stage. Scheduling must be tailored to these factors. For example, the flowering and fruiting stages require the most consistent water volume to prevent yield loss.',
-        ),
-
-        // --- 💧 Water Requirement Calculator (ET/Kc) (NEW ADVANCED FEATURE) ---
-        GuideCard(
-          title: '💧 Water Requirement Calculator (ET/Kc)',
-          content:
-              'The most accurate scheduling uses the Evapotranspiration (ET) method: **Crop Water Use = Reference ET (ETo) x Crop Coefficient (Kc)**. ETo is the water lost from a standard surface, and Kc is a factor specific to your crop and its growth stage. This provides the precise daily water volume needed.',
-        ),
-
-        // --- 🔍 Maintenance & Troubleshooting ---
-        GuideCard(
-          title: '🔍 Maintenance & Troubleshooting',
-          content:
-              'Regular maintenance is key to a long-lasting system. **Clean filters** weekly to prevent blockages. **Flush the lines** periodically to remove sediment. In case of clogs, use a small wire to clear the emitter. Simple checks can prevent major issues.',
-        ),
-
-        // --- ⚠️ Pressure Loss Diagnostics (NEW ADVANCED FEATURE) ---
-        GuideCard(
-          title: '⚠️ Pressure Loss Diagnostics',
-          content:
-              'Low pressure is the most common system failure. Always check pressure gauges at the filter inlet and the end of the line. A significant drop (over 15%) across the filter indicates it needs cleaning. Low end-of-line pressure usually means the main line or lateral line length exceeds design specifications.',
-        ),
-
-        // --- 🤖 Advanced & Automated Systems ---
-        GuideCard(
-          title: '🤖 Advanced & Automated Systems',
-          content:
-              'For larger farms, consider advanced systems with **automated timers** and **moisture sensors (IoT)**. These systems can be controlled via your phone, ensuring your crops get the exact amount of water they need, when they need it, with minimal human intervention.',
-        ),
-
-        // --- 🎯 Types of Drip Emitters ---
-        GuideCard(
-          title: '🎯 Types of Drip Emitters',
-          content:
-              'Choosing the right emitter is crucial. **Pressure-compensating emitters** maintain a uniform flow rate regardless of elevation changes, ideal for sloped terrain. **Adjustable emitters** allow you to manually change the flow rate for different plants, while simple **non-pressure compensating emitters** are best for flat land.',
-        ),
-
-        // --- 🧪 Fertilization with Drip (Fertigation) ---
-        GuideCard(
-          title: '🧪 Fertilization with Drip (Fertigation)',
-          content:
-              'Drip irrigation systems can be used for fertigation, which involves injecting liquid fertilizers directly into the drip lines. This method is highly efficient, as nutrients are delivered precisely to the root zone, reducing waste and nutrient runoff.',
-        ),
-
-        // --- 📈 Drip vs. Traditional Irrigation ---
-        GuideCard(
-          title: '📈 Drip vs. Traditional Irrigation',
-          content:
-              'Compared to traditional flood irrigation or sprinklers, drip irrigation saves significantly on water and labor. It also reduces disease by keeping plant leaves dry and prevents nutrient loss. While the initial setup cost may be higher, the long-term savings are substantial.',
-        ),
-
-        // --- 📐 Sizing Your System ---
-        GuideCard(
-          title: '📐 Sizing Your System',
-          content:
-              'Properly sizing your system is vital. You need to calculate the total water requirements (gallons or liters per hour) for your plants and match it to the flow rate of your main water source. This ensures uniform water distribution across all your crops.',
-        ),
-
-        // --- ☀️ Solar-Powered Drip Systems ---
-        GuideCard(
-          title: '☀️ Solar-Powered Drip Systems',
-          content:
-              'For farms in remote areas, a solar-powered drip system is a sustainable solution. A small solar panel can power a pump that draws water from a well or tank, providing a reliable and eco-friendly water supply for your crops without a constant electricity source.',
-        ),
+        ...guideItems.map((item) => GuideCard(item: item)).toList(),
         const SizedBox(height: 20),
       ],
     );
   }
+}
+
+// Placeholder for Card Color (Added here for completeness)
+extension CardColor on EnhancedColors {
+  static const Color cardColor = Color.fromARGB(255, 255, 255, 255);
 }

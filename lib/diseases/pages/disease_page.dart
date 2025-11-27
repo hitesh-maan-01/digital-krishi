@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -47,9 +49,7 @@ class _DiseasePageState extends State<DiseasePage>
 
   Future<void> _initializeModel() async {
     try {
-      print('🔧 Initializing model...');
       await _modelService.initialize();
-      print('✅ Model ready!');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -60,7 +60,6 @@ class _DiseasePageState extends State<DiseasePage>
         );
       }
     } catch (e) {
-      print('❌ Failed to initialize model: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -95,10 +94,8 @@ class _DiseasePageState extends State<DiseasePage>
           _predictionResult = null;
           _errorMessage = null;
         });
-        print('📸 Image picked: ${image.path}');
       }
     } catch (e) {
-      print('❌ Error picking image: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -109,11 +106,8 @@ class _DiseasePageState extends State<DiseasePage>
 
   Future<void> _analyzeImage() async {
     if (_pickedImage == null) {
-      print('⚠ No image to analyze');
       return;
     }
-
-    print('🔬 Starting image analysis...');
 
     setState(() {
       _isAnalyzing = true;
@@ -124,10 +118,7 @@ class _DiseasePageState extends State<DiseasePage>
     _scanAnimationController.repeat(reverse: true);
 
     try {
-      print('📤 Sending image to model...');
       final result = await _modelService.predictImage(_pickedImage!);
-
-      print('📥 Received result: ${result != null ? "Success" : "Null"}');
 
       if (mounted) {
         setState(() {
@@ -153,15 +144,8 @@ class _DiseasePageState extends State<DiseasePage>
             ),
           );
         }
-      } else {
-        print('✅ Analysis complete!');
-        print('🎯 Prediction: ${result.className}');
-        print('📊 Confidence: ${result.confidence.toStringAsFixed(2)}%');
-      }
-    } catch (e, stackTrace) {
-      print('❌ Error analyzing image: $e');
-      print('📍 Stack trace: $stackTrace');
-
+      } else {}
+    } catch (e) {
       if (mounted) {
         setState(() {
           _isAnalyzing = false;

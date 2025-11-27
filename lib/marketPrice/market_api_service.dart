@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'market_price_model.dart';
@@ -9,7 +11,7 @@ class MarketApiService {
       "579b464db66ec23bdd000001562b571ba6034b325dc0fd19701d8e7a"; // Replace with your valid key
 
   static Future<List<MarketPrice>> fetchMarketPrices() async {
-    final uri = Uri.parse("$baseUrl?api-key=$apiKey&format=json&limit=50000");
+    final uri = Uri.parse("$baseUrl?api-key=$apiKey&format=json&limit=70000");
 
     final response = await http.get(uri);
 

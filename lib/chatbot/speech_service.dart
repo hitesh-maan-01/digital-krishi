@@ -1,4 +1,6 @@
 // lib/services/speech_service.dart
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 
@@ -20,7 +22,7 @@ class SpeechService {
     if (!available) return;
     _speech.listen(
       onResult: (result) {
-        onResult(result.recognizedWords ?? "");
+        onResult(result.recognizedWords);
       },
     );
   }

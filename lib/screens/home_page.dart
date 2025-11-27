@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages, deprecated_member_use, unused_import, prefer_typing_uninitialized_variables
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geolocator/geolocator.dart';
@@ -13,8 +15,9 @@ import '../marketPrice/market_price_page.dart';
 import 'drip_irrigation.dart';
 import 'crop_calendar_page.dart';
 import 'organic_farming.dart';
-import 'notifications_page.dart';
+import '../notification/notifications_page.dart';
 import 'menu_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:digital_krishi/screens/crop_recommendation.dart';
 import 'schemes_page.dart';
 
@@ -154,14 +157,52 @@ class _HomePageState extends State<HomePage>
                   onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.notifications, color: Colors.white),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const NotificationsPage(),
-                    ),
+              StreamBuilder(
+                stream: FirebaseFirestore.instance
+                    .collection("notifications")
+                    .where("read", isEqualTo: false)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  int count = snapshot.hasData ? snapshot.data!.docs.length : 0;
+
+                  return Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.notifications,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationsPage(),
+                            ),
+                          );
+                        },
+                      ),
+
+                      if (count > 0)
+                        Positioned(
+                          right: 10,
+                          top: 10,
+                          child: Container(
+                            padding: const EdgeInsets.all(5),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              count.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   );
                 },
               ),

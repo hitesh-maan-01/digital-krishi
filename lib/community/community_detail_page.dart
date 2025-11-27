@@ -1,5 +1,7 @@
 // Change the build method to use AnimatedButtonWrapper
 // ...
+// ignore_for_file: use_build_context_synchronously, unnecessary_underscores, depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/scheduler.dart';
@@ -66,7 +68,6 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
     with SingleTickerProviderStateMixin {
   final supabase = Supabase.instance.client;
   bool _isMember = false;
-  int _memberCount = 0;
   late final AnimationController _staggerAnimationController;
 
   @override
@@ -111,16 +112,8 @@ class _CommunityDetailPageState extends State<CommunityDetailPage>
   }
 
   Future<void> _loadMemberCount() async {
-    try {
-      final res = await supabase
-          .from('memberships')
-          .select('user_id')
-          .eq('community_id', widget.community['id']);
-
-      setState(() => _memberCount = res.length);
-    } catch (e) {
+    try {} catch (e) {
       debugPrint('Error loading member count: $e');
-      setState(() => _memberCount = 0);
     }
   }
 
