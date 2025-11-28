@@ -1,15 +1,13 @@
-// ignore_for_file: depend_on_referenced_packages, deprecated_member_use, unnecessary_underscores
+// ignore_for_file: unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/scheduler.dart';
 import 'dart:math';
 
-// import '../Authentication/login_page.dart';
+import '../Authentication/login_page.dart';
 import 'community_create_page.dart';
 import 'community_detail_page.dart';
-// import '../screens/home_page.dart';
-import '../main.dart';
 
 // Seasonal Theme Data
 class SeasonalTheme {
@@ -226,11 +224,11 @@ class _SeasonalPetalsPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     for (var petal in petals) {
       final paint = Paint()
-        ..color = petal.color.withOpacity(petal.opacity)
+        ..color = petal.color.withValues(alpha: petal.opacity)
         ..style = PaintingStyle.fill;
 
       final shadowPaint = Paint()
-        ..color = Colors.black.withOpacity(0.1)
+        ..color = Colors.black.withValues(alpha: 0.1)
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3.0);
 
       canvas.save();
@@ -296,6 +294,11 @@ class _CommunityListPageState extends State<CommunityListPage>
   late final AnimationController _seasonController;
   late final AnimationController _pulseController;
 
+  // Add these search-related variables
+  bool _isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   int _currentSeasonIndex = 0;
   SeasonalTheme get _currentTheme => SeasonalThemes.themes[_currentSeasonIndex];
 
@@ -360,6 +363,7 @@ class _CommunityListPageState extends State<CommunityListPage>
     _staggerController.dispose();
     _seasonController.dispose();
     _pulseController.dispose();
+    _searchController.dispose(); // Add this line
     super.dispose();
   }
 
@@ -376,16 +380,46 @@ class _CommunityListPageState extends State<CommunityListPage>
     _staggerController.forward();
   }
 
-  Future<void> _goToHome() async {
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, __, ___) => const MainScreen(),
-          transitionsBuilder: (_, animation, __, child) =>
-              FadeTransition(opacity: animation, child: child),
-        ),
-      );
+  // Add this new method
+  List<Map<String, dynamic>> _filterCommunities(
+    List<Map<String, dynamic>> communities,
+  ) {
+    if (_searchQuery.isEmpty) {
+      return communities;
+    }
+    return communities.where((community) {
+      final name = (community['name'] ?? '').toString().toLowerCase();
+      final description = (community['description'] ?? '')
+          .toString()
+          .toLowerCase();
+      final query = _searchQuery.toLowerCase();
+      return name.contains(query) || description.contains(query);
+    }).toList();
+  }
+
+  Future<void> _logout() async {
+    try {
+      await supabase.auth.signOut();
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (_, _, _) => const LoginPage(),
+            transitionsBuilder: (_, animation, _, child) =>
+                FadeTransition(opacity: animation, child: child),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Failed to log out'),
+            backgroundColor: Colors.red[600],
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -410,17 +444,18 @@ class _CommunityListPageState extends State<CommunityListPage>
           child: Transform.scale(
             scale: 0.5 + (0.5 * slideAnimation.value),
             child: Opacity(
-              opacity: slideAnimation.value,
+              opacity: slideAnimation.value.clamp(0.0, 1.0),
               child: _EnhancedCommunityCard(
                 community: community,
                 index: index,
                 theme: _currentTheme,
                 seasonAnimation: _seasonController,
+                onRefresh: _refreshList, // Add this line
                 onTap: () async {
                   final refreshed = await Navigator.push(
                     context,
                     PageRouteBuilder(
-                      pageBuilder: (_, __, ___) =>
+                      pageBuilder: (_, _, _) =>
                           CommunityDetailPage(community: community),
                       transitionsBuilder: (_, animation, __, child) =>
                           SlideTransition(
@@ -490,12 +525,36 @@ class _CommunityListPageState extends State<CommunityListPage>
                         builder: (context, child) => Transform.scale(
                           scale: 1.0 + (_pulseController.value * 0.1),
                           child: IconButton(
-                            icon: const Icon(
-                              Icons.home_rounded,
+                            icon: Icon(
+                              _isSearching ? Icons.close : Icons.search,
                               color: Colors.white,
                             ),
-                            onPressed: _goToHome,
-                            tooltip: "Home",
+                            onPressed: () {
+                              setState(() {
+                                _isSearching = !_isSearching;
+                                if (!_isSearching) {
+                                  _searchController.clear();
+                                  _searchQuery = '';
+                                }
+                              });
+                            },
+                            tooltip: _isSearching
+                                ? "Close Search"
+                                : "Search Communities",
+                          ),
+                        ),
+                      ),
+                      AnimatedBuilder(
+                        animation: _pulseController,
+                        builder: (context, child) => Transform.scale(
+                          scale: 1.0 + (_pulseController.value * 0.1),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.logout_rounded,
+                              color: Colors.white,
+                            ),
+                            onPressed: _logout,
+                            tooltip: "Logout",
                           ),
                         ),
                       ),
@@ -509,7 +568,7 @@ class _CommunityListPageState extends State<CommunityListPage>
                             end: Alignment.bottomRight,
                             colors: [
                               _currentTheme.primaryColor,
-                              _currentTheme.primaryColor.withOpacity(0.8),
+                              _currentTheme.primaryColor.withValues(alpha: 0.8),
                               _currentTheme.accentColor,
                             ],
                           ),
@@ -549,7 +608,7 @@ class _CommunityListPageState extends State<CommunityListPage>
                                 'Connect • Grow • Thrive',
                                 style: TextStyle(
                                   fontFamily: 'Nunito',
-                                  color: Colors.white.withOpacity(0.9),
+                                  color: Colors.white.withValues(alpha: 0.9),
                                   fontSize: 14,
                                 ),
                               ),
@@ -604,6 +663,70 @@ class _CommunityListPageState extends State<CommunityListPage>
                     ),
                   ),
 
+                  // Add Search Bar
+                  if (_isSearching)
+                    SliverToBoxAdapter(
+                      child: Container(
+                        margin: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _currentTheme.primaryColor.withValues(
+                                alpha: 0.2,
+                              ),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          controller: _searchController,
+                          autofocus: true,
+                          style: const TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 16,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Search communities...',
+                            hintStyle: TextStyle(
+                              fontFamily: 'Nunito',
+                              color: Colors.grey[400],
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: _currentTheme.primaryColor,
+                            ),
+                            suffixIcon: _searchQuery.isNotEmpty
+                                ? IconButton(
+                                    icon: Icon(
+                                      Icons.clear,
+                                      color: Colors.grey[400],
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _searchController.clear();
+                                        _searchQuery = '';
+                                      });
+                                    },
+                                  )
+                                : null,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              _searchQuery = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
                   // Content
                   SliverPadding(
                     padding: const EdgeInsets.all(16),
@@ -637,7 +760,7 @@ class _CommunityListPageState extends State<CommunityListPage>
                                     style: TextStyle(
                                       fontFamily: 'Nunito',
                                       color: _currentTheme.primaryColor
-                                          .withOpacity(0.8),
+                                          .withValues(alpha: 0.8),
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                     ),
@@ -687,7 +810,7 @@ class _CommunityListPageState extends State<CommunityListPage>
                                             _currentTheme.seasonIcon,
                                             size: 80,
                                             color: _currentTheme.primaryColor
-                                                .withOpacity(0.6),
+                                                .withValues(alpha: 0.6),
                                           ),
                                         ),
                                   ),
@@ -697,7 +820,7 @@ class _CommunityListPageState extends State<CommunityListPage>
                                     style: TextStyle(
                                       fontFamily: 'Nunito',
                                       color: _currentTheme.primaryColor
-                                          .withOpacity(0.8),
+                                          .withValues(alpha: 0.8),
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -716,7 +839,62 @@ class _CommunityListPageState extends State<CommunityListPage>
                             ),
                           );
                         } else {
-                          final communities = snapshot.data!;
+                          // Filter communities based on search query
+                          final allCommunities = snapshot.data!;
+                          final filteredCommunities = _filterCommunities(
+                            allCommunities,
+                          );
+
+                          // Show "no results" if search returns empty
+                          if (filteredCommunities.isEmpty &&
+                              _searchQuery.isNotEmpty) {
+                            return SliverToBoxAdapter(
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    const SizedBox(height: 100),
+                                    AnimatedBuilder(
+                                      animation: _pulseController,
+                                      builder: (context, child) =>
+                                          Transform.scale(
+                                            scale:
+                                                1.0 +
+                                                (_pulseController.value * 0.1),
+                                            child: Icon(
+                                              Icons.search_off,
+                                              size: 80,
+                                              color: _currentTheme.primaryColor
+                                                  .withValues(alpha: 0.4),
+                                            ),
+                                          ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    Text(
+                                      'No communities found',
+                                      style: TextStyle(
+                                        fontFamily: 'Nunito',
+                                        color: _currentTheme.primaryColor
+                                            .withValues(alpha: 0.8),
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Try searching for "$_searchQuery"',
+                                      style: TextStyle(
+                                        fontFamily: 'Nunito',
+                                        color: Colors.grey[500],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+
+                          // Show filtered results
                           return SliverGrid(
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
@@ -727,10 +905,10 @@ class _CommunityListPageState extends State<CommunityListPage>
                                 ),
                             delegate: SliverChildBuilderDelegate(
                               (context, index) => _buildEnhancedCommunityCard(
-                                communities[index],
+                                filteredCommunities[index],
                                 index,
                               ),
-                              childCount: communities.length,
+                              childCount: filteredCommunities.length,
                             ),
                           );
                         }
@@ -757,7 +935,7 @@ class _CommunityListPageState extends State<CommunityListPage>
                           final created = await Navigator.push(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (_, __, ___) =>
+                              pageBuilder: (_, _, ___) =>
                                   const CommunityCreatePage(),
                               transitionsBuilder: (_, animation, __, child) =>
                                   SlideTransition(
@@ -816,6 +994,7 @@ class _EnhancedCommunityCard extends StatefulWidget {
   final SeasonalTheme theme;
   final Animation<double> seasonAnimation;
   final VoidCallback onTap;
+  final VoidCallback onRefresh; // Add this
 
   const _EnhancedCommunityCard({
     required this.community,
@@ -823,6 +1002,7 @@ class _EnhancedCommunityCard extends StatefulWidget {
     required this.theme,
     required this.seasonAnimation,
     required this.onTap,
+    required this.onRefresh, // Add this
   });
 
   @override
@@ -886,7 +1066,7 @@ class _EnhancedCommunityCardState extends State<_EnhancedCommunityCard>
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: widget.theme.primaryColor.withOpacity(0.2),
+                    color: widget.theme.primaryColor.withValues(alpha: 0.2),
                     blurRadius: _elevationAnimation.value,
                     offset: Offset(0, _elevationAnimation.value / 2),
                   ),
@@ -897,45 +1077,305 @@ class _EnhancedCommunityCardState extends State<_EnhancedCommunityCard>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Community Icon with seasonal colors
+                    // Add three-dot menu at top-right
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: PopupMenuButton<String>(
+                        padding: EdgeInsets.zero,
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: widget.theme.primaryColor.withValues(
+                            alpha: 0.6,
+                          ),
+                          size: 20,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        onSelected: (value) async {
+                          if (value == 'delete') {
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                title: Text(
+                                  'Delete Community?',
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito',
+                                    color: widget.theme.primaryColor,
+                                  ),
+                                ),
+                                content: Text(
+                                  'Are you sure you want to delete "${widget.community['name']}"? This action cannot be undone.',
+                                  style: const TextStyle(fontFamily: 'Nunito'),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () =>
+                                        Navigator.pop(context, true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.red,
+                                    ),
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true) {
+                              try {
+                                await Supabase.instance.client
+                                    .from('communities')
+                                    .delete()
+                                    .eq('id', widget.community['id']);
+
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
+                                        'Community deleted successfully',
+                                      ),
+                                      backgroundColor:
+                                          widget.theme.primaryColor,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                  widget.onRefresh();
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Failed to delete community',
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                }
+                              }
+                            }
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.delete_outline,
+                                  color: Colors.red[400],
+                                  size: 20,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito',
+                                    color: Colors.red[400],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // Community Icon with seasonal colors - tappable
                     Hero(
                       tag:
                           'community_${widget.community['id']}_${widget.index}',
-                      child: AnimatedContainer(
-                        duration: const Duration(seconds: 2),
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [
-                              widget.theme.primaryColor.withOpacity(0.2),
-                              widget.theme.accentColor.withOpacity(0.3),
+                      child: GestureDetector(
+                        onTap: widget.community['image_url']?.isNotEmpty == true
+                            ? () {
+                                showDialog(
+                                  context: context,
+                                  barrierColor: Colors.black87,
+                                  builder: (context) => Dialog(
+                                    backgroundColor: Colors.transparent,
+                                    insetPadding: const EdgeInsets.all(20),
+                                    child: Stack(
+                                      children: [
+                                        Center(
+                                          child: InteractiveViewer(
+                                            minScale: 0.5,
+                                            maxScale: 4.0,
+                                            child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              child: Image.network(
+                                                widget.community['image_url'],
+                                                fit: BoxFit.contain,
+                                                loadingBuilder: (context, child, loadingProgress) {
+                                                  if (loadingProgress == null) {
+                                                    return child;
+                                                  }
+                                                  return Center(
+                                                    child: CircularProgressIndicator(
+                                                      value:
+                                                          loadingProgress
+                                                                  .expectedTotalBytes !=
+                                                              null
+                                                          ? loadingProgress
+                                                                    .cumulativeBytesLoaded /
+                                                                loadingProgress
+                                                                    .expectedTotalBytes!
+                                                          : null,
+                                                      color: widget
+                                                          .theme
+                                                          .primaryColor,
+                                                    ),
+                                                  );
+                                                },
+                                                errorBuilder: (_, __, ___) =>
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            40,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withValues(
+                                                              alpha: 0.1,
+                                                            ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              16,
+                                                            ),
+                                                      ),
+                                                      child: Column(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        children: const [
+                                                          Icon(
+                                                            Icons.error_outline,
+                                                            color: Colors.white,
+                                                            size: 64,
+                                                          ),
+                                                          SizedBox(height: 12),
+                                                          Text(
+                                                            'Failed to load image',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 14,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 10,
+                                          right: 10,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.black54,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                Icons.close,
+                                                color: Colors.white,
+                                                size: 28,
+                                              ),
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              tooltip: 'Close',
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          bottom: 20,
+                                          left: 0,
+                                          right: 0,
+                                          child: Center(
+                                            child: Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 8,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.black54,
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Text(
+                                                'Pinch to zoom',
+                                                style: TextStyle(
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.8),
+                                                  fontSize: 12,
+                                                  fontFamily: 'Nunito',
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }
+                            : null,
+                        child: AnimatedContainer(
+                          duration: const Duration(seconds: 2),
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                widget.theme.primaryColor.withValues(
+                                  alpha: 0.2,
+                                ),
+                                widget.theme.accentColor.withValues(alpha: 0.3),
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: widget.theme.primaryColor.withValues(
+                                alpha: 0.5,
+                              ),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: widget.theme.primaryColor.withValues(
+                                  alpha: 0.3,
+                                ),
+                                blurRadius: 12,
+                                offset: const Offset(0, 6),
+                              ),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(
-                            color: widget.theme.primaryColor.withOpacity(0.5),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: widget.theme.primaryColor.withOpacity(0.3),
-                              blurRadius: 12,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
+                          child:
+                              widget.community['image_url']?.isNotEmpty == true
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(30),
+                                  child: Image.network(
+                                    widget.community['image_url'],
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) =>
+                                        _buildSeasonalIcon(),
+                                  ),
+                                )
+                              : _buildSeasonalIcon(),
                         ),
-                        child: widget.community['image_url']?.isNotEmpty == true
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(30),
-                                child: Image.network(
-                                  widget.community['image_url'],
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) =>
-                                      _buildSeasonalIcon(),
-                                ),
-                              )
-                            : _buildSeasonalIcon(),
                       ),
                     ),
 
@@ -948,7 +1388,7 @@ class _EnhancedCommunityCardState extends State<_EnhancedCommunityCard>
                         fontFamily: 'Nunito',
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: widget.theme.primaryColor.withOpacity(0.9),
+                        color: widget.theme.primaryColor.withValues(alpha: 0.9),
                       ),
                       textAlign: TextAlign.center,
                       maxLines: 2,
@@ -993,7 +1433,9 @@ class _EnhancedCommunityCardState extends State<_EnhancedCommunityCard>
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.theme.primaryColor.withOpacity(0.4),
+                            color: widget.theme.primaryColor.withValues(
+                              alpha: 0.4,
+                            ),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),
@@ -1034,7 +1476,7 @@ class _EnhancedCommunityCardState extends State<_EnhancedCommunityCard>
     return Icon(
       widget.theme.seasonIcon,
       size: 36,
-      color: widget.theme.primaryColor.withOpacity(0.8),
+      color: widget.theme.primaryColor.withValues(alpha: 0.8),
     );
   }
 }

@@ -1,6 +1,4 @@
-// Change the build method to use AnimatedButtonWrapper
-// ...
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
 import 'dart:typed_data';
@@ -8,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+
+final titleController = TextEditingController(); // ADD THIS
 
 // Add this new widget for a general purpose animated button
 class AnimatedButtonWrapper extends StatefulWidget {
@@ -40,6 +40,7 @@ class _AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   @override
   void dispose() {
     _controller.dispose();
+    titleController.dispose(); // ADD THIS
     super.dispose();
   }
 
@@ -68,6 +69,7 @@ class NewPostPage extends StatefulWidget {
 class _NewPostPageState extends State<NewPostPage> {
   final supabase = Supabase.instance.client;
   final contentController = TextEditingController();
+  final titleController = TextEditingController(); // ADD THIS
   File? _selectedFile;
   Uint8List? _webImage; // For web image bytes
   bool saving = false;
@@ -76,8 +78,16 @@ class _NewPostPageState extends State<NewPostPage> {
   void initState() {
     super.initState();
     if (widget.editPost != null) {
+      titleController.text = widget.editPost!['title'] ?? ''; // ADD THIS
       contentController.text = widget.editPost!['content'] ?? '';
     }
+  }
+
+  @override
+  void dispose() {
+    contentController.dispose();
+    titleController.dispose(); // ADD THIS
+    super.dispose();
   }
 
   Future<void> _pickImage() async {
@@ -111,17 +121,15 @@ class _NewPostPageState extends State<NewPostPage> {
     try {
       if (kIsWeb && _webImage != null) {
         // Upload bytes for web
-        await supabase.storage
-            .from('post_media')
-            .uploadBinary(path, _webImage!);
+        await supabase.storage.from('images').uploadBinary(path, _webImage!);
       } else if (_selectedFile != null) {
         // Upload file for mobile
-        await supabase.storage.from('post_media').upload(path, _selectedFile!);
+        await supabase.storage.from('images').upload(path, _selectedFile!);
       } else {
         return null;
       }
 
-      final publicUrl = supabase.storage.from('post_media').getPublicUrl(path);
+      final publicUrl = supabase.storage.from('images').getPublicUrl(path);
       return publicUrl;
     } catch (e) {
       debugPrint("Upload failed: $e");
@@ -160,12 +168,14 @@ class _NewPostPageState extends State<NewPostPage> {
         await supabase
             .from('posts')
             .update({
+              'title': titleController.text.trim(), // ADD THIS LINE
               'content': contentController.text.trim(),
               'media_url': mediaUrl,
             })
             .eq('id', widget.editPost!['id']);
       } else {
         await supabase.from('posts').insert({
+          'title': titleController.text.trim(), // ADD THIS LINE
           'community_id': widget.communityId,
           'user_id': user.id,
           'content': contentController.text.trim(),
@@ -228,6 +238,27 @@ class _NewPostPageState extends State<NewPostPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              TextField(
+                controller: titleController, // ADD THIS ENTIRE TEXTFIELD
+                decoration: InputDecoration(
+                  labelText: "Title",
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                  labelStyle: const TextStyle(
+                    fontFamily: 'Nunito',
+                    color: Color(0xFF4CAF50),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16), // ADD THIS
               TextField(
                 controller: contentController,
                 decoration: InputDecoration(

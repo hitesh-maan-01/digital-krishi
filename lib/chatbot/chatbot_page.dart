@@ -1,14 +1,18 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously, deprecated_member_use, unused_local_variable, unused_element
+// lib/pages/chatbot_page.dart
+// ignore_for_file: unused_element, use_build_context_synchronously, deprecated_member_use
 
 import 'dart:async';
 import 'dart:io';
-import 'package:digital_krishi/notification/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../chatbot/agri_service.dart';
 import '../chatbot/speech_service.dart';
+import '../notification/notification_service.dart'; // optional: previously provided
+import '../notification/notifications_page.dart'; // <-- make sure this file exists (NotificationsPage)
 
 class ChatBotPage extends StatefulWidget {
   const ChatBotPage({super.key});
@@ -25,11 +29,23 @@ class _ChatBotPageState extends State<ChatBotPage>
   final ScrollController _scroll = ScrollController();
   final ImagePicker _picker = ImagePicker();
 
-  List<Map<String, dynamic>> messages = [];
+  // UI state
   bool loading = false;
   bool listening = false;
+  File? pendingImage; // image preview stored until user presses send
 
-  File? pendingImage; // NEW: image preview stored here until user presses send
+  // typing animation controllers (bot)
+  late final AnimationController _slideController;
+  late final Animation<Offset> _slideAnimation;
+  late final AnimationController _dotsController;
+
+  // officer typing controllers
+  bool _officerTyping = false;
+  late final AnimationController _officerSlideController;
+  late final Animation<Offset> _officerSlideAnimation;
+
+  // track delivered officer notifications to avoid duplicates
+  final Set<String> _deliveredOfficerDocIds = {};
 
   // translation options
   final List<String> translationOptions = [
@@ -40,18 +56,15 @@ class _ChatBotPageState extends State<ChatBotPage>
     "Eng-Malayalam",
   ];
 
-  // --- Typing indicator animation controllers (WhatsApp style)
-  late final AnimationController _slideController;
-  late final Animation<Offset> _slideAnimation;
-  late final AnimationController _dotsController;
+  // helper to get supabase user id safely
+  String? get _supabaseUserId => Supabase.instance.client.auth.currentUser?.id;
 
   @override
   void initState() {
     super.initState();
     _speechService.initSTT();
-    _listenToOfficerReplies();
 
-    // Slide controller: slide from left when showing typing bubble
+    // bot typing controllers
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 300),
@@ -60,66 +73,131 @@ class _ChatBotPageState extends State<ChatBotPage>
       begin: const Offset(-0.4, 0),
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOut));
-
-    // Dots controller: looping for the three dots
     _dotsController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 900),
+    )..repeat();
+
+    // officer typing controllers
+    _officerSlideController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
     );
-    _dotsController.repeat();
+    _officerSlideAnimation =
+        Tween<Offset>(begin: const Offset(-0.5, 0), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _officerSlideController,
+            curve: Curves.easeOut,
+          ),
+        );
+
+    // Listen to Firestore chat for generating notifications on officer replies
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startOfficerListener();
+      _startOfficerTypingListener();
+    });
   }
 
   @override
   void dispose() {
-    _slideController.dispose();
     _dotsController.dispose();
+    _slideController.dispose();
+    _officerSlideController.dispose();
     _controller.dispose();
     _scroll.dispose();
     super.dispose();
   }
 
-  /// officer replies
-  void _listenToOfficerReplies() {
-    FirebaseFirestore.instance
-        .collection("queries")
-        .where(
-          "userId",
-          isEqualTo: "FARMER_USER_ID",
-        ) // <-- replace with real user ID
-        .snapshots()
-        .listen((querySnapshot) {
-          for (var doc in querySnapshot.docs) {
-            final data = doc.data();
+  // ---------- Firestore paths ----------
+  CollectionReference<Map<String, dynamic>> _userChatCollection() {
+    final uid = _supabaseUserId;
+    final id = uid ?? "guest_user";
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(id)
+        .collection("chat");
+  }
 
-            final String? officerReply = data["response"];
-            final String? status = data["status"];
+  CollectionReference<Map<String, dynamic>> _notificationsCollection() {
+    final uid = _supabaseUserId ?? "guest_user";
+    return FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("notifications");
+  }
 
-            if (officerReply != null && officerReply.isNotEmpty) {
-              // Add officer reply inside chat instantly
-              setState(() {
-                messages.add({
-                  "from": "officer",
-                  "msg": officerReply,
-                  "image": null,
-                  "escalated": false,
-                });
+  // ---------- Listeners ----------
+
+  Future<void> _startOfficerListener() async {
+    final uid = _supabaseUserId;
+    if (uid == null) return; // user not logged in yet
+
+    final col = FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("chat");
+    col.snapshots().listen((snapshot) async {
+      for (final change in snapshot.docChanges) {
+        if (change.type == DocumentChangeType.added) {
+          final doc = change.doc;
+          final data = doc.data();
+          if (data == null) continue;
+          final from = (data['from'] ?? '').toString();
+          // if officer message and not delivered yet, trigger notification
+          if (from == 'officer' && !_deliveredOfficerDocIds.contains(doc.id)) {
+            _deliveredOfficerDocIds.add(doc.id);
+            final msg = (data['msg'] ?? '').toString();
+            // Save a notification document
+            try {
+              await _notificationsCollection().add({
+                "message": msg,
+                "timestamp": FieldValue.serverTimestamp(),
+                "read": false,
               });
-
-              // Save for notifications
-              _saveNotification(officerReply);
-
-              // Send local push notification
-              NotificationService.showNotification(
+            } catch (_) {}
+            // Show local notification (if service available)
+            try {
+              await NotificationService.showNotification(
                 title: "Officer replied",
-                body: officerReply,
+                body: msg,
               );
+            } catch (_) {}
+          }
+        }
+      }
+    });
+  }
 
-              _scrollDown();
-            }
+  // Listen to officer typing flag at: users/{uid}/chat_status/status (doc field officerTyping)
+  void _startOfficerTypingListener() {
+    final uid = _supabaseUserId;
+    if (uid == null) return;
+
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uid)
+        .collection('chat_status')
+        .doc('status')
+        .snapshots()
+        .listen((docSnap) {
+          if (!docSnap.exists) return;
+          final data = docSnap.data();
+          final officerTyping = (data?['officerTyping'] ?? false) as bool;
+          if (officerTyping && !_officerTyping) {
+            setState(() {
+              _officerTyping = true;
+              _officerSlideController.forward();
+            });
+          } else if (!officerTyping && _officerTyping) {
+            setState(() {
+              _officerTyping = false;
+              _officerSlideController.reverse();
+            });
           }
         });
   }
 
+  // ---------- Helpers ----------
   void _scrollDown() {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (_scroll.hasClients) {
@@ -132,97 +210,104 @@ class _ChatBotPageState extends State<ChatBotPage>
     });
   }
 
-  // Build last 3 messages context (most recent first)
-  List<Map<String, dynamic>> _lastThreeContext() {
-    final ctx = <Map<String, dynamic>>[];
-    for (int i = messages.length - 1; i >= 0 && ctx.length < 3; i--) {
-      final m = messages[i];
-      if (m["from"] == "user" || m["from"] == "bot") ctx.add(m);
-    }
-    return ctx;
+  // get last 3 messages from Firestore (most recent)
+  Future<List<Map<String, dynamic>>>
+  _getLastThreeMessagesFromFirestore() async {
+    final col = _userChatCollection();
+    final snap = await col
+        .orderBy('timestamp', descending: true)
+        .limit(3)
+        .get();
+    final docs = snap.docs;
+    return docs.map((d) {
+      final data = d.data();
+      return {"from": data['from'] ?? '', "msg": data['msg'] ?? ''};
+    }).toList();
   }
 
-  // notification
-
-  Future<void> _saveNotification(String message) async {
-    await FirebaseFirestore.instance.collection("notifications").add({
-      "message": message,
-      "timestamp": Timestamp.now(),
-      "read": false,
-    });
-  }
-
-  // NEW SEND: send text + pendingImage together
+  // send user message (text + optional pendingImage)
   Future<void> _send() async {
+    final userId = _supabaseUserId;
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please login to send messages.")),
+      );
+      return;
+    }
+
     final query = _controller.text.trim();
     if (query.isEmpty && pendingImage == null) return;
 
-    // Add user bubble (with pendingImage if present)
+    // Save user message to Firestore
+    final docData = {
+      "from": "user",
+      "msg": query,
+      "image": null,
+      "escalated": false,
+      "timestamp": FieldValue.serverTimestamp(),
+    };
+
+    try {
+      await _userChatCollection().add(docData);
+    } catch (e) {
+      // saving failed, continue
+    }
+
+    final imageToSend = pendingImage;
     setState(() {
-      messages.add({
-        "from": "user",
-        "msg": query,
-        "image": pendingImage,
-        "escalated": false,
-      });
+      _controller.clear();
+      pendingImage = null;
       loading = true;
     });
 
-    // prepare context
-    final last3 = _lastThreeContext();
-
-    // clear input, but keep a local copy of image for sending
-    _controller.clear();
-    final imageToSend = pendingImage;
-    setState(() => pendingImage = null);
-
-    _scrollDown();
-
-    // Show typing indicator (slide in)
-    setState(() {
-      messages.add({"from": "sys", "type": "typing"});
-    });
+    // show bot typing indicator locally
     _slideController.forward();
 
+    // prepare context (last 3 messages)
+    final last3 = await _getLastThreeMessagesFromFirestore();
+
     // call API
-    String promptForApi = query; // we use context param when calling service
-    String ans;
+    String answer;
     try {
-      ans = await _service.sendMessage(
-        promptForApi,
+      answer = await _service.sendMessage(
+        query,
         imageFile: imageToSend,
         lastMessages: last3,
       );
     } catch (e) {
-      ans = "⚠️ ERROR: $e";
+      answer = "⚠️ ERROR: $e";
     }
 
-    // remove typing indicator (slide out) and add bot message with animation
+    // save bot response
+    final botData = {
+      "from": "bot",
+      "msg": answer,
+      "image": null,
+      "escalated": false,
+      "timestamp": FieldValue.serverTimestamp(),
+    };
+
+    try {
+      await _userChatCollection().add(botData);
+    } catch (_) {}
+
+    // hide typing indicator
     _slideController.reverse();
     setState(() {
-      messages.removeWhere((m) => m["from"] == "sys" && m["type"] == "typing");
-      messages.add({
-        "from": "bot",
-        "msg": ans,
-        "image": null,
-        "escalated": false,
-      });
       loading = false;
     });
 
     _scrollDown();
   }
 
-  // pick image -> store in pendingImage (do NOT send immediately)
+  // pick image (store as pending preview, do not send automatically)
   Future<void> _pickGallery() async {
     final x = await _picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 75,
     );
-    if (x != null) {
-      setState(() => pendingImage = File(x.path));
-      _scrollDown();
-    }
+    if (x != null) setState(() => pendingImage = File(x.path));
+    _scrollDown();
   }
 
   Future<void> _pickCamera() async {
@@ -230,55 +315,51 @@ class _ChatBotPageState extends State<ChatBotPage>
       source: ImageSource.camera,
       imageQuality: 75,
     );
-    if (x != null) {
-      setState(() => pendingImage = File(x.path));
-      _scrollDown();
-    }
+    if (x != null) setState(() => pendingImage = File(x.path));
+    _scrollDown();
   }
 
-  // mic toggle: start/stop listening and fill input
-  void _toggleListening() async {
-    if (!listening) {
-      final initialized = await _speechService.initSTT();
-      if (!initialized) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Speech not available")));
-        return;
-      }
-      setState(() => listening = true);
-      _speechService.listen((text) {
-        setState(() {
-          _controller.text = text;
-          _controller.selection = TextSelection.fromPosition(
-            TextPosition(offset: _controller.text.length),
-          );
-        });
-      });
-    } else {
-      _speechService.stopListening();
-      setState(() => listening = false);
-    }
+  // optionally upload image to Firebase Storage and return URL (placeholder)
+  Future<String?> _uploadImageToStorage(File image) async {
+    return null;
   }
 
+  // read aloud using TTS
   void _readAloud(String text) {
     _speechService.speak(text, langCode: "en-IN");
   }
 
-  void _thumbsUp(int msgIndex) {
+  // Thumbs up local feedback
+  void _thumbsUp(
+    int msgIndex,
+    DocumentSnapshot<Map<String, dynamic>>? docSnapshot,
+  ) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Thanks for your feedback 👍")),
     );
+    if (docSnapshot != null) {
+      try {
+        docSnapshot.reference.update({"user_feedback": "up"});
+      } catch (_) {}
+    }
   }
 
-  // thumbs down -> show escalation dialog and save to Firestore
-  void _thumbsDown(int msgIndex) {
+  // Thumbs down -> escalation dialog and save escalation
+  void _thumbsDown(
+    int msgIndex,
+    DocumentSnapshot<Map<String, dynamic>>? docSnapshot,
+    List<DocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
     showDialog(
       context: context,
       builder: (ctx) {
         final TextEditingController reasonCtrl = TextEditingController();
         return AlertDialog(
-          title: const Text("Escalation / Feedback"),
+          backgroundColor: Color.fromARGB(255, 255, 255, 255),
+          title: const Text(
+            "Escalation / Feedback",
+            selectionColor: Color.fromARGB(255, 41, 189, 87),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -294,38 +375,44 @@ class _ChatBotPageState extends State<ChatBotPage>
               onPressed: () => Navigator.pop(ctx),
               child: const Text(
                 "Cancel",
-                selectionColor: Color.fromARGB(255, 33, 139, 75),
+                selectionColor: Color.fromARGB(255, 41, 189, 87),
               ),
             ),
             ElevatedButton(
               onPressed: () async {
                 Navigator.pop(ctx);
+                String botReply = "";
+                String userMessage = "";
+                if (docSnapshot != null) {
+                  botReply = docSnapshot.data()?['msg'] ?? "";
+                  final idx = docs.indexWhere((d) => d.id == docSnapshot.id);
+                  if (idx > 0) {
+                    final prev = docs[idx - 1];
+                    if ((prev.data()?['from'] ?? '') == 'user') {
+                      userMessage = prev.data()?['msg'] ?? "";
+                    }
+                  }
+                }
 
-                final botReply = messages[msgIndex]["msg"];
-                final userMessage =
-                    (msgIndex > 0 && messages[msgIndex - 1]["from"] == "user")
-                    ? messages[msgIndex - 1]["msg"]
-                    : "Unknown";
-
-                // Save escalation to Firestore (matches prior dashboard expectations)
                 await FirebaseFirestore.instance.collection("escalations").add({
+                  "userId": _supabaseUserId ?? "guest_user",
                   "user_message": userMessage,
                   "bot_reply": botReply,
                   "reason": reasonCtrl.text.trim(),
-                  "timestamp": Timestamp.now(),
+                  "timestamp": FieldValue.serverTimestamp(),
                   "status": "pending",
-                  "userSatisfied": false,
                 });
-
-                setState(() => messages[msgIndex]["escalated"] = true);
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text("Escalation submitted.")),
+                  snackBarAnimationStyle: AnimationStyle(
+                    curve: ElasticOutCurve(0.4),
+                  ),
                 );
               },
               child: const Text(
                 "Escalate",
-                selectionColor: Color.fromARGB(255, 33, 139, 75),
+                selectionColor: Color.fromARGB(255, 41, 189, 87),
               ),
             ),
           ],
@@ -334,9 +421,14 @@ class _ChatBotPageState extends State<ChatBotPage>
     );
   }
 
-  // Translate and REPLACE same bot message (in-place)
-  Future<void> _translateInPlace(int index) async {
-    final original = messages[index]["msg"] as String? ?? "";
+  // Translate and replace same bot message in Firestore
+  Future<void> _translateInPlace(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+    int index,
+  ) async {
+    final data = doc.data();
+    if (data == null) return;
+    final original = data['msg']?.toString() ?? "";
     if (original.isEmpty) return;
 
     showModalBottomSheet(
@@ -349,28 +441,22 @@ class _ChatBotPageState extends State<ChatBotPage>
               title: Text("Translate to $lang"),
               onTap: () async {
                 Navigator.pop(ctx);
-
-                // show inline loader text
-                final old = messages[index]["msg"];
-                setState(
-                  () => messages[index]["msg"] = "⏳ Translating to $lang...",
-                );
-
-                // Prefer translateText helper if present, otherwise fallback to sendMessage prompt
+                try {
+                  await doc.reference.update({
+                    "msg": "⏳ Translating to $lang...",
+                  });
+                } catch (_) {}
                 String translated;
                 try {
                   translated = await _service.translateText(original, lang);
                 } catch (_) {
                   translated = await _service.sendMessage(
-                    "Translate this to $lang. Only translation:\n$original",
+                    "Translate this to $lang: $original",
                   );
                 }
-
-                setState(() {
-                  messages[index]["msg"] = translated;
-                });
-
-                _scrollDown();
+                try {
+                  await doc.reference.update({"msg": translated});
+                } catch (_) {}
               },
             );
           }).toList(),
@@ -379,17 +465,26 @@ class _ChatBotPageState extends State<ChatBotPage>
     );
   }
 
-  // build bot icons with translate icon calling _translateInPlace
-  Widget _botIcons(int index, String text) {
+  // build icons row for a message
+  Widget _iconsRowForMessage(
+    DocumentSnapshot<Map<String, dynamic>>? docSnapshot,
+    List<DocumentSnapshot<Map<String, dynamic>>> docs,
+    int idx,
+  ) {
+    final data = docSnapshot?.data();
+    final from = data?['from'] ?? '';
+    if (from != 'bot' && from != 'officer') return const SizedBox.shrink();
+
+    final text = data?['msg'] ?? '';
     return Row(
       children: [
         IconButton(
           icon: const Icon(Icons.thumb_up_alt_outlined, size: 20),
-          onPressed: () => _thumbsUp(index),
+          onPressed: () => _thumbsUp(idx, docSnapshot),
         ),
         IconButton(
           icon: const Icon(Icons.thumb_down_alt_outlined, size: 20),
-          onPressed: () => _thumbsDown(index),
+          onPressed: () => _thumbsDown(idx, docSnapshot, docs),
         ),
         IconButton(
           icon: const Icon(Icons.volume_up, size: 20),
@@ -397,15 +492,16 @@ class _ChatBotPageState extends State<ChatBotPage>
         ),
         IconButton(
           icon: const Icon(Icons.translate, size: 20),
-          onPressed: () => _translateInPlace(index),
+          onPressed: () {
+            if (docSnapshot != null) _translateInPlace(docSnapshot, idx);
+          },
         ),
       ],
     );
   }
 
-  // Typing indicator widget (WhatsApp style) — slides in/out and shows 3 bouncing dots
+  // typing indicator widget (WhatsApp style - bot)
   Widget _typingIndicatorWidget() {
-    // uses _slideAnimation and _dotsController
     return SlideTransition(
       position: _slideAnimation,
       child: FadeTransition(
@@ -423,7 +519,29 @@ class _ChatBotPageState extends State<ChatBotPage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 const SizedBox(width: 6),
-                _bouncingDots(),
+                AnimatedBuilder(
+                  animation: _dotsController,
+                  builder: (context, child) {
+                    final t = _dotsController.value;
+                    double phase(int i) {
+                      final p = (t + i * 0.2) % 1.0;
+                      return (p < 0.5) ? (p * 2) : (1 - (p - 0.5) * 2);
+                    }
+
+                    Widget dot(double s) => Container(
+                      width: 6 + 6 * s,
+                      height: 6 + 6 * s,
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.black54,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    );
+                    return Row(
+                      children: [dot(phase(0)), dot(phase(1)), dot(phase(2))],
+                    );
+                  },
+                ),
                 const SizedBox(width: 6),
               ],
             ),
@@ -433,50 +551,58 @@ class _ChatBotPageState extends State<ChatBotPage>
     );
   }
 
-  // three bouncing dots
-  Widget _bouncingDots() {
-    return AnimatedBuilder(
-      animation: _dotsController,
-      builder: (context, child) {
-        final t = _dotsController.value; // 0..1
-        // three phases for three dots
-        double phase(int i) {
-          final p = (t + i * 0.2) % 1.0;
-          return (p < 0.5) ? (p * 2) : (1 - (p - 0.5) * 2);
-        }
-
-        Widget dot(double scale) {
-          return Container(
-            width: 6 + 6 * scale,
-            height: 6 + 6 * scale,
-            margin: const EdgeInsets.symmetric(horizontal: 3),
-            decoration: BoxDecoration(
-              color: Colors.black54,
-              borderRadius: BorderRadius.circular(6),
-            ),
-          );
-        }
-
-        return Row(children: [dot(phase(0)), dot(phase(1)), dot(phase(2))]);
-      },
+  // officer typing widget (slide)
+  Widget _officerTypingWidget() {
+    return SlideTransition(
+      position: _officerSlideAnimation,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xffDDEBFF),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Officer is typing...",
+                style: TextStyle(color: Colors.blueGrey),
+              ),
+              const SizedBox(width: 10),
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _bubble(Map<String, dynamic> msg, int index) {
-    final isUser = msg["from"] == "user";
-    final isOfficer = msg["from"] == "officer"; // NEW
-    final hasImage = msg["image"] != null && msg["image"] is File;
-    final escalated = msg["escalated"] == true;
-
-    Color bubbleColor = isUser
+  // build a single message bubble from Firestore doc
+  Widget _buildBubbleFromDoc(
+    DocumentSnapshot<Map<String, dynamic>> doc,
+    int index,
+    List<DocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    final data = doc.data() ?? {};
+    final from = (data['from'] ?? '').toString();
+    final text = (data['msg'] ?? '').toString();
+    final escalated = (data['escalated'] ?? false) as bool;
+    final isUser = from == 'user';
+    final isOfficer = from == 'officer';
+    final bubbleColor = isUser
         ? const Color(0xff058C42)
-        : (isOfficer
-              ? const Color(0xffd9eaff) // officer BLUE color
-              : const Color(0xffE9F8E4)); // normal bot color
-
-    Color textColor = isUser
+        : (isOfficer ? const Color(0xffd9eaff) : const Color(0xffE9F8E4));
+    final textColor = isUser
         ? Colors.white
         : (isOfficer ? Colors.blue[900]! : Colors.black);
+    final imageUrl = data['image']?.toString();
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -485,45 +611,53 @@ class _ChatBotPageState extends State<ChatBotPage>
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            margin: const EdgeInsets.symmetric(vertical: 6),
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.75,
-            ),
-            decoration: BoxDecoration(
-              color: bubbleColor,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: escalated
-                  ? [
-                      BoxShadow(
-                        color: Colors.red.withOpacity(0.15),
-                        blurRadius: 6,
+          AnimatedSize(
+            duration: const Duration(milliseconds: 240),
+            curve: Curves.easeInOut,
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              margin: const EdgeInsets.symmetric(vertical: 6),
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.75,
+              ),
+              decoration: BoxDecoration(
+                color: bubbleColor,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(16),
+                  topRight: const Radius.circular(16),
+                  bottomLeft: isUser ? const Radius.circular(16) : Radius.zero,
+                  bottomRight: isUser ? Radius.zero : const Radius.circular(16),
+                ),
+                boxShadow: escalated
+                    ? [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.15),
+                          blurRadius: 6,
+                        ),
+                      ]
+                    : null,
+              ),
+              child: imageUrl != null && imageUrl.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(imageUrl, fit: BoxFit.cover),
+                    )
+                  : Text(
+                      text,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 15,
+                        fontWeight: isOfficer
+                            ? FontWeight.w600
+                            : FontWeight.normal,
                       ),
-                    ]
-                  : null,
-            ),
-            child: hasImage
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(msg["image"], fit: BoxFit.cover),
-                  )
-                : Text(
-                    msg["msg"] ?? "",
-                    style: TextStyle(
-                      color: textColor,
-                      fontSize: 15,
-                      fontWeight: isOfficer
-                          ? FontWeight.w600
-                          : FontWeight.normal,
                     ),
-                  ),
+            ),
           ),
-
-          if (!isUser && !isOfficer)
+          if (!(from == 'user'))
             Padding(
               padding: const EdgeInsets.only(left: 6),
-              child: _botIcons(index, msg["msg"] ?? ""),
+              child: _iconsRowForMessage(doc, docs, index),
             ),
         ],
       ),
@@ -532,131 +666,243 @@ class _ChatBotPageState extends State<ChatBotPage>
 
   @override
   Widget build(BuildContext context) {
-    final sendEnabled =
-        _controller.text.trim().isNotEmpty || pendingImage != null;
-
+    final userId = _supabaseUserId;
     return Scaffold(
-      backgroundColor: const Color(0xffF3FFF0),
+      backgroundColor: const Color.fromARGB(255, 243, 255, 240),
       appBar: AppBar(
         backgroundColor: const Color(0xff058C42),
         title: const Text(
           "Digital Krishi Chatbot",
           style: TextStyle(color: Colors.white),
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scroll,
-              padding: const EdgeInsets.all(12),
-              itemCount: messages.length,
-              itemBuilder: (c, i) => _bubble(messages[i], i),
-            ),
-          ),
-
-          if (loading)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 6),
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-            ),
-
-          // Pending image preview (if any) shown above input
-          if (pendingImage != null)
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
+        actions: [
+          // notifications icon with badge (unread count)
+          StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: _notificationsCollection()
+                .where("read", isEqualTo: false)
+                .snapshots(),
+            builder: (context, snap) {
+              final count = snap.hasData ? snap.data!.docs.length : 0;
+              return Stack(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.file(
-                      pendingImage!,
-                      width: 90,
-                      height: 70,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Expanded(child: Text("Image ready to send")),
                   IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => setState(() => pendingImage = null),
+                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const NotificationsPage(),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
-            ),
-
-          // Input area — rounded container
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            color: Colors.white,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.photo, color: Color(0xff058C42)),
-                  onPressed: _pickGallery,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.camera_alt, color: Color(0xff058C42)),
-                  onPressed: _pickCamera,
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xfff6fff6),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: TextField(
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: "Ask something…",
-                        border: InputBorder.none,
+                  if (count > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          count.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      minLines: 1,
-                      maxLines: 4,
-                      onChanged: (_) =>
-                          setState(() {}), // to refresh sendEnabled state
                     ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                GestureDetector(
-                  onTap: _toggleListening,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: listening ? Colors.green : Colors.transparent,
-                    ),
-                    child: Icon(
-                      listening ? Icons.mic : Icons.mic_none,
-                      color: const Color(0xff058C42),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    color: sendEnabled ? const Color(0xff058C42) : Colors.grey,
-                  ),
-                  onPressed: sendEnabled ? _send : null,
-                ),
-              ],
-            ),
+                ],
+              );
+            },
           ),
         ],
       ),
+      body: userId == null
+          ? const Center(child: Text("Please login to use the chatbot."))
+          : Column(
+              children: [
+                // Chat list (real-time)
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: _userChatCollection()
+                        .orderBy("timestamp")
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      final docs = snapshot.data!.docs;
+                      final totalExtra =
+                          (loading ? 1 : 0) + (_officerTyping ? 1 : 0);
+                      return ListView.builder(
+                        controller: _scroll,
+                        padding: const EdgeInsets.all(12),
+                        itemCount: docs.length + totalExtra,
+                        itemBuilder: (context, idx) {
+                          // show documents first
+                          if (idx < docs.length) {
+                            final doc = docs[idx];
+                            return _buildBubbleFromDoc(doc, idx, docs);
+                          }
+
+                          // after docs, show officer typing (if active) then bot typing
+                          final extraIndex = idx - docs.length;
+                          if (_officerTyping && extraIndex == 0) {
+                            return _officerTypingWidget();
+                          }
+                          // If both present and officer was first, bot typing will be next (extraIndex 1)
+                          if (loading &&
+                              ((_officerTyping && extraIndex == 1) ||
+                                  (!_officerTyping && extraIndex == 0))) {
+                            return _typingIndicatorWidget();
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      );
+                    },
+                  ),
+                ),
+
+                // Pending image preview
+                if (pendingImage != null)
+                  Container(
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.file(
+                            pendingImage!,
+                            width: 90,
+                            height: 70,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        const Expanded(child: Text("Image ready to send")),
+                        IconButton(
+                          icon: const Icon(Icons.close),
+                          onPressed: () => setState(() => pendingImage = null),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                // Input bar
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 8,
+                  ),
+                  color: Colors.white,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.photo, color: Color(0xff058C42)),
+                        onPressed: _pickGallery,
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.camera_alt,
+                          color: Color(0xff058C42),
+                        ),
+                        onPressed: _pickCamera,
+                      ),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xfff6fff6),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: TextField(
+                            controller: _controller,
+                            decoration: const InputDecoration(
+                              hintText: "Ask something…",
+                              border: InputBorder.none,
+                            ),
+                            minLines: 1,
+                            maxLines: 4,
+                            onChanged: (_) => setState(() {}),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: () async {
+                          if (!listening) {
+                            final ok = await _speechService.initSTT();
+                            if (!ok) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Speech not available"),
+                                ),
+                              );
+                              return;
+                            }
+                            setState(() => listening = true);
+                            _speechService.listen((text) {
+                              setState(() {
+                                _controller.text = text;
+                                _controller
+                                    .selection = TextSelection.fromPosition(
+                                  TextPosition(offset: _controller.text.length),
+                                );
+                              });
+                            });
+                          } else {
+                            _speechService.stopListening();
+                            setState(() => listening = false);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: listening
+                                ? Colors.green
+                                : Colors.transparent,
+                          ),
+                          child: Icon(
+                            listening ? Icons.mic : Icons.mic_none,
+                            color: const Color(0xff058C42),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      IconButton(
+                        icon: Icon(
+                          Icons.send,
+                          color:
+                              (_controller.text.trim().isNotEmpty ||
+                                  pendingImage != null)
+                              ? const Color(0xff058C42)
+                              : Colors.grey,
+                        ),
+                        onPressed:
+                            (_controller.text.trim().isNotEmpty ||
+                                pendingImage != null)
+                            ? _send
+                            : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

@@ -1,5 +1,5 @@
 // Enhanced UI/UX with seasonal transitions and falling petals
-// ignore_for_file: depend_on_referenced_packages, deprecated_member_use, use_build_context_synchronously
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -792,7 +792,7 @@ class _CommunityCreatePageState extends State<CommunityCreatePage>
 
       if (kIsWeb && webImageBytes != null) {
         await supabase.storage
-            .from('post_media')
+            .from('images')
             .uploadBinary(
               filePath,
               webImageBytes!,
@@ -800,7 +800,7 @@ class _CommunityCreatePageState extends State<CommunityCreatePage>
             );
       } else if (selectedImage != null) {
         await supabase.storage
-            .from('post_media')
+            .from('images')
             .upload(
               filePath,
               selectedImage!,
@@ -810,9 +810,7 @@ class _CommunityCreatePageState extends State<CommunityCreatePage>
         return null;
       }
 
-      final publicUrl = supabase.storage
-          .from('post_media')
-          .getPublicUrl(filePath);
+      final publicUrl = supabase.storage.from('images').getPublicUrl(filePath);
       return publicUrl;
     } catch (e) {
       debugPrint('Image upload error: $e');

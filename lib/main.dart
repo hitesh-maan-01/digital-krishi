@@ -1,20 +1,15 @@
-// ignore_for_file: depend_on_referenced_packages
-
 import '../notification/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Import all screens
 import 'screens/splash_screen.dart';
 import 'screens/home_page.dart';
 import 'screens/profile_page.dart';
-//import 'Authentication/login_page.dart';
 import 'community/community_list_page.dart';
 import 'Authentication/onboarding_page.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-//import 'package:flutter_local_notifications/flutter_local_notifications.dart'; // ADDED
 
 Future<void> main() async {
   // Ensure Flutter binding is initialized
@@ -55,11 +50,26 @@ class DigitalKrishiApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.green),
       initialRoute: '/', // Start with splash screen
       routes: {
-        '/': (context) => const SplashScreen(),
+        '/': (context) => const AuthGate(),
+        '/splash': (context) => const SplashScreen(),
         '/login': (context) => const OnboardingPage(),
         '/main': (context) => const MainScreen(),
       },
     );
+  }
+}
+
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final session = Supabase.instance.client.auth.currentSession;
+    if (session != null) {
+      return const SplashScreen();
+    } else {
+      return const OnboardingPage();
+    }
   }
 }
 

@@ -29,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     // Navigate to Home after a delay
     Timer(const Duration(seconds: 1), () {
-      Navigator.pushReplacementNamed(context, '/login');
+      Navigator.pushReplacementNamed(context, '/main');
     });
   }
 

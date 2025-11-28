@@ -1,12 +1,13 @@
-// ignore_for_file: depend_on_referenced_packages, use_build_context_synchronously, deprecated_member_use
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'post_like_button.dart';
 import '../services/user_cache.dart';
 import 'dart:math';
-// Add missing import
 import 'dart:async';
+import 'dart:io'; // ADD THIS
+import 'package:image_picker/image_picker.dart'; // ADD THIS
 
 class PostDetailPage extends StatefulWidget {
   final Map<String, dynamic> post;
@@ -23,6 +24,15 @@ class _PostDetailPageState extends State<PostDetailPage>
 
   late Stream<List<Map<String, dynamic>>> _commentStream;
   int _refreshKey = 0;
+  // ADD THESE THREE LINES:
+  File? _selectedImage;
+  final ImagePicker _imagePicker = ImagePicker();
+  bool _isUploading = false;
+
+  // ADD THESE THREE LINES FOR REPLY FUNCTIONALITY:
+  String? _replyingToCommentId;
+  String? _replyingToUsername;
+  final FocusNode _commentFocusNode = FocusNode();
 
   // Seasonal animation controllers
   late AnimationController _seasonController;
@@ -84,7 +94,13 @@ class _PostDetailPageState extends State<PostDetailPage>
         .stream(primaryKey: ['id'])
         .eq('post_id', widget.post['id'])
         .order('created_at')
-        .map((rows) => List<Map<String, dynamic>>.from(rows));
+        .map((rows) {
+          final allComments = List<Map<String, dynamic>>.from(rows);
+          // Filter to only show top-level comments (parent_comment_id is null)
+          return allComments
+              .where((comment) => comment['parent_comment_id'] == null)
+              .toList();
+        });
   }
 
   Future<void> _addComment() async {
@@ -97,21 +113,93 @@ class _PostDetailPageState extends State<PostDetailPage>
       return;
     }
 
+    setState(() {
+      _isUploading = true;
+    });
+
     try {
+      String? imageUrl;
+
+      // Upload image if selected
+      if (_selectedImage != null) {
+        final fileName =
+            '${user.id}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final filePath = 'comment_images/$fileName';
+
+        await supabase.storage
+            .from('images') // Make sure this bucket exists in Supabase
+            .upload(filePath, _selectedImage!);
+
+        imageUrl = supabase.storage.from('images').getPublicUrl(filePath);
+      }
+
       await supabase.from('comments').insert({
         'post_id': widget.post['id'],
         'user_id': user.id,
         'content': commentController.text.trim(),
+        'image_url': imageUrl, // Add image URL
+        'parent_comment_id': _replyingToCommentId, // ADD THIS LINE
       });
+
       commentController.clear();
+      setState(() {
+        _selectedImage = null;
+        _isUploading = false;
+        _replyingToCommentId = null; // ADD THIS
+        _replyingToUsername = null; // ADD THIS
+      });
       _refreshComments();
     } catch (e) {
       debugPrint('Add comment failed: $e');
+      setState(() {
+        _isUploading = false;
+      });
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Failed to comment: $e')));
     }
   }
+
+  // ADD THIS ENTIRE FUNCTION:
+  Future<void> _pickImage() async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+
+      if (pickedFile != null) {
+        setState(() {
+          _selectedImage = File(pickedFile.path);
+        });
+      }
+    } catch (e) {
+      debugPrint('Error picking image: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to pick image: $e')));
+    }
+  }
+
+  // ADD THIS ENTIRE FUNCTION:
+  void _startReply(String commentId, String username) {
+    setState(() {
+      _replyingToCommentId = commentId;
+      _replyingToUsername = username;
+    });
+    _commentFocusNode.requestFocus();
+  }
+
+  void _cancelReply() {
+    setState(() {
+      _replyingToCommentId = null;
+      _replyingToUsername = null;
+    });
+  }
+
+  // ADD THIS ENTIRE FUNCTION:
 
   void _refreshComments() {
     setState(() {
@@ -188,6 +276,7 @@ class _PostDetailPageState extends State<PostDetailPage>
   @override
   void dispose() {
     commentController.dispose();
+    _commentFocusNode.dispose(); // ADD THIS LINE
     _seasonController.dispose();
     _petalController.dispose();
     super.dispose();
@@ -221,7 +310,7 @@ class _PostDetailPageState extends State<PostDetailPage>
           end: Alignment.bottomCenter,
           colors: [
             _currentSeason.backgroundColor,
-            _currentSeason.backgroundColor.withOpacity(0.7),
+            _currentSeason.backgroundColor.withValues(alpha: 0.7),
           ],
         ),
       ),
@@ -232,7 +321,7 @@ class _PostDetailPageState extends State<PostDetailPage>
             "Post Details - ${_currentSeason.name}",
             style: TextStyle(color: _currentSeason.textColor),
           ),
-          backgroundColor: _currentSeason.primaryColor.withOpacity(0.1),
+          backgroundColor: _currentSeason.primaryColor.withValues(alpha: 0.1),
           elevation: 0,
           iconTheme: IconThemeData(color: _currentSeason.textColor),
           actions: [
@@ -264,16 +353,16 @@ class _PostDetailPageState extends State<PostDetailPage>
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: _currentSeason.primaryColor.withOpacity(
-                                  0.1,
+                                color: _currentSeason.primaryColor.withValues(
+                                  alpha: 0.1,
                                 ),
                                 blurRadius: 15,
                                 offset: const Offset(0, 8),
                               ),
                             ],
                             border: Border.all(
-                              color: _currentSeason.accentColor.withOpacity(
-                                0.3,
+                              color: _currentSeason.accentColor.withValues(
+                                alpha: 0.3,
                               ),
                               width: 1,
                             ),
@@ -297,7 +386,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                                       ),
                                       decoration: BoxDecoration(
                                         color: _currentSeason.primaryColor
-                                            .withOpacity(0.1),
+                                            .withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(15),
                                       ),
                                       child: Text(
@@ -332,7 +421,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                                         borderRadius: BorderRadius.circular(16),
                                         border: Border.all(
                                           color: _currentSeason.accentColor
-                                              .withOpacity(0.3),
+                                              .withValues(alpha: 0.3),
                                           width: 2,
                                         ),
                                       ),
@@ -350,7 +439,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: _currentSeason.accentColor
-                                        .withOpacity(0.1),
+                                        .withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Row(
@@ -364,7 +453,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${post['comment_count'] ?? 0} Comments',
+                                        '${post['comments_count'] ?? 0} Comments',
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: _currentSeason.textColor,
@@ -414,7 +503,7 @@ class _PostDetailPageState extends State<PostDetailPage>
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
                                       color: _currentSeason.accentColor
-                                          .withOpacity(0.3),
+                                          .withValues(alpha: 0.3),
                                     ),
                                   ),
                                   child: Text(
@@ -434,82 +523,99 @@ class _PostDetailPageState extends State<PostDetailPage>
                               itemCount: comments.length,
                               itemBuilder: (context, index) {
                                 final comment = comments[index];
-                                return FutureBuilder<String>(
-                                  future: UserCache.instance.getUserName(
-                                    comment['user_id'],
-                                  ),
-                                  builder: (context, nameSnapshot) {
-                                    final username =
-                                        nameSnapshot.data ?? 'Loading...';
-                                    return AnimatedContainer(
-                                      duration: Duration(
-                                        milliseconds: 300 + (index * 100),
-                                      ),
-                                      curve: Curves.easeOut,
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: _currentSeason.cardColor,
-                                        borderRadius: BorderRadius.circular(16),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: _currentSeason.primaryColor
-                                                .withOpacity(0.08),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ],
-                                        border: Border.all(
-                                          color: _currentSeason.accentColor
-                                              .withOpacity(0.2),
-                                        ),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(16),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 8,
-                                                    vertical: 4,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: _currentSeason
-                                                    .primaryColor
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Text(
-                                                username,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      _currentSeason.textColor,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(height: 8),
-                                            Text(
-                                              comment['content'],
-                                              style: TextStyle(
-                                                color: _currentSeason.textColor,
-                                                height: 1.4,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  },
+                                return CommentWidget(
+                                  comment: comment,
+                                  seasonTheme: _currentSeason,
+                                  onReply: _startReply,
+                                  postId: widget.post['id'],
+                                  depth: 0,
                                 );
                               },
                             );
+                            //   return FutureBuilder<String>(
+                            //     future: UserCache.instance.getUserName(comment['user_id']),
+                            //     builder: (context, nameSnapshot) {
+                            //       final username = nameSnapshot.data ?? 'Loading...';
+                            //       return AnimatedContainer(
+                            //         duration: Duration(milliseconds: 300 + (index * 100)),
+                            //         curve: Curves.easeOut,
+                            //         margin: const EdgeInsets.symmetric(
+                            //           horizontal: 16,
+                            //           vertical: 6,
+                            //         ),
+                            //         decoration: BoxDecoration(
+                            //           color: _currentSeason.cardColor,
+                            //           borderRadius: BorderRadius.circular(16),
+                            //           boxShadow: [
+                            //             BoxShadow(
+                            //               color: _currentSeason.primaryColor.withValues(alpha: 0.08),
+                            //               blurRadius: 8,
+                            //               offset: const Offset(0, 4),
+                            //             ),
+                            //           ],
+                            //           border: Border.all(
+                            //             color: _currentSeason.accentColor.withValues(alpha: 0.2),
+                            //           ),
+                            //         ),
+                            //         child: Padding(
+                            //           padding: const EdgeInsets.all(16),
+                            //           child: Column(
+                            //             crossAxisAlignment: CrossAxisAlignment.start,
+                            //             children: [
+                            //               Container(
+                            //                 padding: const EdgeInsets.symmetric(
+                            //                   horizontal: 8,
+                            //                   vertical: 4,
+                            //                 ),
+                            //                 decoration: BoxDecoration(
+                            //                   color: _currentSeason.primaryColor.withValues(alpha: 0.1),
+                            //                   borderRadius: BorderRadius.circular(8),
+                            //                 ),
+                            //                 child: Text(
+                            //                   username,
+                            //                   style: TextStyle(
+                            //                     fontWeight: FontWeight.bold,
+                            //                     color: _currentSeason.textColor,
+                            //                   ),
+                            //                 ),
+                            //               ),
+                            //               const SizedBox(height: 8),
+                            //               Text(
+                            //                 comment['content'],
+                            //                 style: TextStyle(
+                            //                   color: _currentSeason.textColor,
+                            //                   height: 1.4,
+                            //                 ),
+                            //               ),
+                            //               // ADD THIS: Display image if exists
+                            //               if (comment['image_url'] != null &&
+                            //                   comment['image_url'].toString().isNotEmpty)
+                            //                 Padding(
+                            //                   padding: const EdgeInsets.only(top: 12),
+                            //                   child: ClipRRect(
+                            //                     borderRadius: BorderRadius.circular(12),
+                            //                     child: Image.network(
+                            //                       comment['image_url'],
+                            //                       width: double.infinity,
+                            //                       fit: BoxFit.cover,
+                            //                       errorBuilder: (context, error, stackTrace) {
+                            //                         return Container(
+                            //                           padding: const EdgeInsets.all(8),
+                            //                           color: Colors.grey[200],
+                            //                           child: const Text('Failed to load image'),
+                            //                         );
+                            //                       },
+                            //                     ),
+                            //                   ),
+                            //                 ),
+                            //             ],
+                            //           ),
+                            //         ),
+                            //       );
+                            //     },
+                            //   );
+                            // },
+                            // );
                           },
                         ),
                       ],
@@ -523,61 +629,184 @@ class _PostDetailPageState extends State<PostDetailPage>
                     duration: const Duration(seconds: 2),
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
-                      color: _currentSeason.cardColor.withOpacity(0.9),
+                      color: _currentSeason.cardColor.withValues(alpha: 0.9),
                       border: Border(
                         top: BorderSide(
-                          color: _currentSeason.accentColor.withOpacity(0.3),
+                          color: _currentSeason.accentColor.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
                       ),
                     ),
-                    child: Row(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Expanded(
-                          child: AnimatedContainer(
-                            duration: const Duration(seconds: 2),
+                        // Reply indicator banner - ADD THIS ENTIRE SECTION
+                        if (_replyingToCommentId != null)
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 8),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                color: _currentSeason.primaryColor.withOpacity(
-                                  0.3,
-                                ),
-                                width: 2,
+                              color: _currentSeason.accentColor.withValues(
+                                alpha: 0.2,
                               ),
-                              color: _currentSeason.cardColor,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _currentSeason.primaryColor.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
                             ),
-                            child: TextField(
-                              controller: commentController,
-                              style: TextStyle(color: _currentSeason.textColor),
-                              decoration: InputDecoration(
-                                hintText: "Write a comment...",
-                                hintStyle: TextStyle(
-                                  color: _currentSeason.textColor.withOpacity(
-                                    0.6,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.reply,
+                                  size: 16,
+                                  color: _currentSeason.textColor,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    'Replying to $_replyingToUsername',
+                                    style: TextStyle(
+                                      color: _currentSeason.textColor,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 12,
+                                IconButton(
+                                  onPressed: _cancelReply,
+                                  icon: Icon(
+                                    Icons.close,
+                                    size: 18,
+                                    color: _currentSeason.textColor,
+                                  ),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        // Image preview (if image selected)
+                        if (_selectedImage != null)
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            height: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: _currentSeason.primaryColor.withValues(
+                                  alpha: 0.3,
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        AnimatedContainer(
-                          duration: const Duration(seconds: 2),
-                          child: FloatingActionButton(
-                            mini: true,
-                            onPressed: _addComment,
-                            backgroundColor: _currentSeason.primaryColor,
-                            elevation: 8,
-                            child: const Icon(
-                              Icons.send,
-                              color: Colors.white,
-                              size: 18,
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Image.file(
+                                    _selectedImage!,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 4,
+                                  right: 4,
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _selectedImage = null;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.close),
+                                    style: IconButton.styleFrom(
+                                      backgroundColor: Colors.black54,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
+                        // Input row
+                        Row(
+                          children: [
+                            // Image picker button
+                            IconButton(
+                              onPressed: _isUploading ? null : _pickImage,
+                              icon: Icon(
+                                Icons.image,
+                                color: _selectedImage != null
+                                    ? _currentSeason.primaryColor
+                                    : _currentSeason.textColor.withValues(
+                                        alpha: 0.6,
+                                      ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            // Text field
+                            Expanded(
+                              child: AnimatedContainer(
+                                duration: const Duration(seconds: 2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(25),
+                                  border: Border.all(
+                                    color: _currentSeason.primaryColor
+                                        .withValues(alpha: 0.3),
+                                    width: 2,
+                                  ),
+                                  color: _currentSeason.cardColor,
+                                ),
+                                child: TextField(
+                                  controller: commentController,
+                                  focusNode: _commentFocusNode, // ADD THIS LINE
+                                  enabled: !_isUploading,
+                                  style: TextStyle(
+                                    color: _currentSeason.textColor,
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: "Write a comment...",
+                                    hintStyle: TextStyle(
+                                      color: _currentSeason.textColor
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Send button
+                            AnimatedContainer(
+                              duration: const Duration(seconds: 2),
+                              child: FloatingActionButton(
+                                mini: true,
+                                onPressed: _isUploading ? null : _addComment,
+                                backgroundColor: _currentSeason.primaryColor,
+                                elevation: 8,
+                                child: _isUploading
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.send,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -644,7 +873,7 @@ class PetalPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = petalColor.withOpacity(0.7)
+      ..color = petalColor.withValues(alpha: 0.7)
       ..style = PaintingStyle.fill;
 
     for (final petal in petals) {
@@ -680,7 +909,7 @@ class TreePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final trunkPaint = Paint()
-      ..color = treeColor.withOpacity(0.8)
+      ..color = treeColor.withValues(alpha: 0.8)
       ..style = PaintingStyle.fill;
 
     final leavesPaint = Paint()
@@ -706,7 +935,7 @@ class TreePainter extends CustomPainter {
 
     // Draw small fruits/leaves
     final fruitPaint = Paint()
-      ..color = treeColor.withOpacity(0.9)
+      ..color = treeColor.withValues(alpha: 0.9)
       ..style = PaintingStyle.fill;
 
     for (int i = 0; i < 5; i++) {
@@ -720,4 +949,239 @@ class TreePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+}
+
+// ADD THIS ENTIRE CLASS BELOW TreePainter:
+class CommentWidget extends StatefulWidget {
+  final Map<String, dynamic> comment;
+  final SeasonTheme seasonTheme;
+  final Function(String commentId, String username) onReply;
+  final String postId;
+  final int depth;
+
+  const CommentWidget({
+    super.key,
+    required this.comment,
+    required this.seasonTheme,
+    required this.onReply,
+    required this.postId,
+    this.depth = 0,
+  });
+
+  @override
+  State<CommentWidget> createState() => _CommentWidgetState();
+}
+
+class _CommentWidgetState extends State<CommentWidget> {
+  final supabase = Supabase.instance.client;
+  List<Map<String, dynamic>> _replies = [];
+  bool _showReplies = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadReplies();
+  }
+
+  Future<void> _loadReplies() async {
+    setState(() {});
+
+    try {
+      final response = await supabase
+          .from('comments')
+          .select()
+          .eq('post_id', widget.postId)
+          .eq('parent_comment_id', widget.comment['id'])
+          .order('created_at');
+
+      setState(() {
+        _replies = List<Map<String, dynamic>>.from(response);
+      });
+    } catch (e) {
+      debugPrint('Error loading replies: $e');
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final hasReplies = _replies.isNotEmpty;
+    final indentation = widget.depth * 20.0;
+
+    return FutureBuilder<String>(
+      future: UserCache.instance.getUserName(widget.comment['user_id']),
+      builder: (context, nameSnapshot) {
+        final username = nameSnapshot.data ?? 'Loading...';
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedContainer(
+              duration: Duration(milliseconds: 300 + (widget.depth * 100)),
+              curve: Curves.easeOut,
+              margin: EdgeInsets.only(
+                left: indentation,
+                right: 16,
+                top: 6,
+                bottom: 6,
+              ),
+              decoration: BoxDecoration(
+                color: widget.seasonTheme.cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.seasonTheme.primaryColor.withValues(
+                      alpha: 0.08,
+                    ),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+                border: Border.all(
+                  color: widget.seasonTheme.accentColor.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: widget.seasonTheme.primaryColor.withValues(
+                              alpha: 0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            username,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: widget.seasonTheme.textColor,
+                            ),
+                          ),
+                        ),
+                        if (widget.depth > 0)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: widget.seasonTheme.accentColor
+                                    .withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                'Reply',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: widget.seasonTheme.textColor,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      widget.comment['content'],
+                      style: TextStyle(
+                        color: widget.seasonTheme.textColor,
+                        height: 1.4,
+                      ),
+                    ),
+                    if (widget.comment['image_url'] != null &&
+                        widget.comment['image_url'].toString().isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            widget.comment['image_url'],
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                padding: const EdgeInsets.all(8),
+                                color: Colors.grey[200],
+                                child: const Text('Failed to load image'),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        TextButton.icon(
+                          onPressed: () =>
+                              widget.onReply(widget.comment['id'], username),
+                          icon: Icon(
+                            Icons.reply,
+                            size: 16,
+                            color: widget.seasonTheme.textColor,
+                          ),
+                          label: Text(
+                            'Reply',
+                            style: TextStyle(
+                              color: widget.seasonTheme.textColor,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        if (hasReplies) ...[
+                          const SizedBox(width: 8),
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                _showReplies = !_showReplies;
+                              });
+                            },
+                            icon: Icon(
+                              _showReplies
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              size: 16,
+                              color: widget.seasonTheme.textColor,
+                            ),
+                            label: Text(
+                              '${_replies.length} ${_replies.length == 1 ? 'Reply' : 'Replies'}',
+                              style: TextStyle(
+                                color: widget.seasonTheme.textColor,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Nested replies
+            if (_showReplies && hasReplies)
+              ...(_replies.map(
+                (reply) => CommentWidget(
+                  comment: reply,
+                  seasonTheme: widget.seasonTheme,
+                  onReply: widget.onReply,
+                  postId: widget.postId,
+                  depth: widget.depth + 1,
+                ),
+              )),
+          ],
+        );
+      },
+    );
+  }
 }

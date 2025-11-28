@@ -6,8 +6,7 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 class AgriService {
-  static const String GEMINI_API_KEY =
-      "AIzaSyDr2T0sA3xBFpboXwjdSregXHr2FRsskOU"; // replace
+  static const String GEMINI_API_KEY = ""; // replace
 
   String _extractTextFromResponse(Map<String, dynamic> jsonBody) {
     try {

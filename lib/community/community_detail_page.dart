@@ -1,6 +1,6 @@
 // Change the build method to use AnimatedButtonWrapper
 // ...
-// ignore_for_file: use_build_context_synchronously, unnecessary_underscores, depend_on_referenced_packages
+// ignore_for_file: use_build_context_synchronously, unnecessary_underscores
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
